@@ -1,0 +1,12 @@
+- model: dvr.stream
+  pk: 1
+  fields:
+    name: teleSUR HD
+    slug: telesur-satmex6
+    live_url: http://captura-saro:1935/live/
+- model: dvr.stream
+  pk: 2
+  fields:
+    name: teleSUR English
+    slug: telesur-english-venesat
+    live_url: http://captura-saro:1935/live/

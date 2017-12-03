@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+  redis:
+    image: redis
+  cache:
+    image: memcached
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 64
+  web:
+    build: .
+    # command: python3 manage.py createsuperuser 
+    entrypoint: /app/docker-entrypoint.sh
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - cache
+      - redis

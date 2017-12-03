@@ -1,0 +1,110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-11-25 03:05-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: dvr/models.py:6
+msgid "name"
+msgstr "nombre"
+
+#: dvr/models.py:7
+msgid "slug"
+msgstr "identificador"
+
+#: dvr/models.py:8
+msgid "live URL"
+msgstr "URL en vivo"
+
+#: dvr/models.py:9
+msgid "DVR URL"
+msgstr "URL de DVR"
+
+#: dvr/models.py:10
+msgid "API URL"
+msgstr "URL de API"
+
+#: dvr/models.py:11 dvr/models.py:49
+msgid "created at"
+msgstr "creado en"
+
+#: dvr/models.py:12 dvr/models.py:50
+msgid "modified at"
+msgstr "modificado en"
+
+#: dvr/models.py:18 dvr/models.py:45
+msgid "stream"
+msgstr "transmisión"
+
+#: dvr/models.py:19
+msgid "streams"
+msgstr "transmisiones"
+
+#: dvr/models.py:29
+msgid "Pending"
+msgstr "Pendiente"
+
+#: dvr/models.py:30
+msgid "Running"
+msgstr "Procesando"
+
+#: dvr/models.py:31
+msgid "Success"
+msgstr "Exitoso"
+
+#: dvr/models.py:32
+msgid "Failure"
+msgstr "Fallido"
+
+#: dvr/models.py:38
+msgid "Normal"
+msgstr "Normal"
+
+#: dvr/models.py:39
+msgid "High"
+msgstr "Alta"
+
+#: dvr/models.py:40
+msgid "Low"
+msgstr "Baja"
+
+#: dvr/models.py:43
+msgid "status"
+msgstr "estado"
+
+#: dvr/models.py:46
+msgid "start"
+msgstr "inicio"
+
+#: dvr/models.py:47
+msgid "duration"
+msgstr "duración"
+
+#: dvr/models.py:48
+msgid "priority"
+msgstr "prioridad"
+
+#: dvr/models.py:57
+msgid "Conversion"
+msgstr "Conversión"
+
+#: dvr/models.py:58
+msgid "Conversions"
+msgstr "Conversiones"
+
+#~ msgid "DVR url"
+#~ msgstr "URL de DVR"

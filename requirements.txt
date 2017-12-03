@@ -1,0 +1,12 @@
+Django>=2.0rc1
+psycopg2
+python-memcached
+django-debug-toolbar
+celery[redis]
+django-celery-results
+djangorestframework
+markdown
+django-filter
+Pillow
+PyYAML
+requests
