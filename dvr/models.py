@@ -1,89 +1,99 @@
+import logging
+
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
 
-class Stream(models.Model):
-    name = models.CharField(_('name'), max_length=255)
-    slug = models.SlugField(_('slug'))
-    live_url = models.URLField(_('live URL'), blank=True)
-    dvr_url = models.URLField(_('DVR URL'), blank=True)
-    api_url = models.URLField(_('API URL'), blank=True)
-    created_at = models.DateTimeField(_('created at'), default=timezone.now)
-    modified_at = models.DateTimeField(_('modified at'), auto_now=True, null=True)
+from .mixins import EphemeralMixin, WorkableMixin, MetadatableMixin, NameableMixin
+from .stream_providers import *
 
-    def __str__(self):
-        return self.name
+logger = logging.getLogger('default')
+
+class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
+    """
+    Stream model
+    """
+    PROVIDER_CHOICES = (
+        ('WowzaStreamingEngine', _('Wowza Streaming Engine')),
+    )
+    provider = models.CharField(_('provider'), max_length=64, choices=PROVIDER_CHOICES)
+
+    def get_provider(self):
+        provider_class = eval(self.provider + 'StreamProvider')
+        logger.debug('Instantiating new provider class {}'.format(provider_class))
+        return provider_class(self, self.metadata) 
+
+    @cached_property
+    def provider_data(self):
+        return self.get_provider().get_data()
 
     class Meta:
         verbose_name = _('stream')
         verbose_name_plural = _('streams')
 
 
-class Conversion(models.Model):
-    PENDING = 0
-    QUEUED = 1
-    RUNNING = 2
-    SUCCESS = 3
-    FAILURE = 4
-    STATUS_CHOICES = (
-        (QUEUED, _('Pending')),
-        (RUNNING, _('Running')),
-        (SUCCESS, _('Success')),
-        (FAILURE, _('Failure')),
-    )
-    NORMAL = 0
-    HIGH = 1
-    LOW = 2
-    PRIORITY_CHOICES = (
-        (NORMAL, _('Normal')),
-        (NORMAL, _('High')),
-        (NORMAL, _('Low')),
-    )
-    status = models.PositiveSmallIntegerField(
-        _('status'), db_index=True, choices=STATUS_CHOICES, default=PENDING)
+class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
+    """
+    Converison model
+    """
     stream = models.ForeignKey(
-        'Stream', verbose_name=_('stream'), related_name='conversions', on_delete=models.CASCADE)
+        'Stream', null=True, blank=True, on_delete=models.CASCADE,
+        verbose_name=_('stream'), related_name='conversions'
+    )
+    dvr_store = models.CharField(_('DVR Store'), max_length=128, blank=True, null=True)
     start = models.DateTimeField(_('start'))
     duration = models.DurationField(_('duration'))
-    priority = models.PositiveSmallIntegerField(_('priority'), choices=PRIORITY_CHOICES, default=NORMAL)
-    created_at = models.DateTimeField(_('created at'), default=timezone.now)
-    modified_at = models.DateTimeField(_('modified at'), auto_now=True, null=True)
-    metadata = models.HStoreField(_('metadata'), null=True)
-    result = models.CharField(_('result'), max_length=64, blank=True, editable=False)
 
     @property
     def end(self):
         return self.start + self.duration
 
     class Meta:
-        verbose_name = _('Conversion')
-        verbose_name_plural = _('Conversions')
+        ordering = ('-start',)
+        verbose_name = _('conversion')
+        verbose_name_plural = _('conversions')
 
 
-class Distribution(models.Model):
-    WAITING = 0
-    QUEUED = 1
-    RUNNING = 2
-    SUCCESS = 3
-    FAILURE = 4
-    STATUS_CHOICES = (
-        (WAITING, _('Waiting')),
-        (QUEUED, _('Pending')),
-        (RUNNING, _('Running')),
-        (SUCCESS, _('Success')),
-        (FAILURE, _('Failure')),
-    )
-    status = models.PositiveSmallIntegerField(
-        _('status'), db_index=True, choices=STATUS_CHOICES, default=PENDING)
-    conversion = models.ForeignKey(
-        'Conversion', verbose_name=_('conversion'), related_name='distributions', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(_('created at'), default=timezone.now)
-    modified_at = models.DateTimeField(_('modified at'), auto_now=True, null=True)
-    metadata = models.HStoreField(_('metadata'), null=True)
-    target = models.CharField(_('target'), max_length=255)
-    progress = models.FloatField(_('progress'), null=True)
-    result = models.CharField(_('result'), max_length=255, blank=True, editable=False)
+class Video(EphemeralMixin, WorkableMixin, MetadatableMixin, models.Model):
+    """
+    Video model
+    """
+    conversions = models.ManyToManyField('Conversion', blank=True, verbose_name=_('conversions'))
 
     class Meta:
-        verbose_name = _('Distribution')
-        verbose_name_plural = _('Distributions')
+        verbose_name = _('video')
+        verbose_name_plural = _('videos')
+
+
+class DistributionChannel(NameableMixin, EphemeralMixin, MetadatableMixin, models.Model):
+    """
+    Distribution channel model
+    """
+    MULTIMEDIA = 'multimedia'
+    FTP = 'ftp'
+    YOUTUBE = 'youtube'
+    TYPE_CHOICES = (
+        (MULTIMEDIA, _('Captura-Multimedia')),
+        (FTP, _('FTP')),
+        (YOUTUBE, _('YouTube')),
+    )
+    active = models.BooleanField(_('active'), default=True)
+    type = models.CharField(_('type'), max_length=128, choices=TYPE_CHOICES)
+
+    class Meta:
+        verbose_name = _('distribution channel')
+        verbose_name_plural = _('distribution channels')
+
+
+class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, models.Model):
+    """
+    Distribution attemp model
+    """
+    video = models.ForeignKey(
+        'Video', on_delete=models.CASCADE,
+        verbose_name=_('video'), related_name='distribution_attempts')
+    channel = models.ForeignKey('DistributionChannel', verbose_name=_('channel'), on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('distribution attempt')
+        verbose_name_plural = _('distribution attempts')

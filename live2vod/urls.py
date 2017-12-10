@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 
-from dvr.views import ConversionViewSet, StreamViewSet
+from dvr.views import *
 
 admin.site.site_header = "Open Multimedia"
 admin.site.site_title = "Open"
@@ -25,8 +25,16 @@ admin.site.index_title = "Administración"
 admin.site.site_url = None
 
 router = routers.DefaultRouter()
-router.register(r'conversion', ConversionViewSet)
-router.register(r'stream', StreamViewSet)
+
+# Model ViewSets
+router.register(r'conversions', ConversionViewSet)
+router.register(r'distribution_attempts', DistributionAttemptViewSet)
+router.register(r'distribution_channels', DistributionChannelViewSet)
+router.register(r'streams', StreamViewSet)
+router.register(r'videos', VideoViewSet)
+
+# Non-model ViewSets
+# router.register(r'stream_store', StreamStoreViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

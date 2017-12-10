@@ -1,8 +1,8 @@
-Django>=2.0rc1
+Django==2.0
 psycopg2
 python-memcached
 django-debug-toolbar
-celery[redis]
+celery
 django-celery-results
 djangorestframework
 markdown
@@ -10,3 +10,5 @@ django-filter
 Pillow
 PyYAML
 requests
+django-admin-json-editor
+django-cors-headers

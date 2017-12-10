@@ -2,5 +2,6 @@
 *.pot
 *.py[co]
 .tox/
+*.log
 __pycache__
 MANIFEST

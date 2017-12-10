@@ -37,10 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
+    'corsheaders',
     'django_celery_results',
     'rest_framework',
     'django_filters',
+    'django_admin_json_editor',
 
     'dvr',
 ]
@@ -48,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -56,13 +60,17 @@ MIDDLEWARE = [
 ]
 
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+
 REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.IsAdminUser',
     # ],
     # 'PAGE_SIZE': 10
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 CELERY_RESULT_BACKEND = 'django-cache'
@@ -88,6 +96,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'live2vod.wsgi.application'
 
 
+CELERY_BROKER_URL = 'amqp://user:pass@rabbitmq//'
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+# CELERY_TASK_SERIALIZER = 'json'
+
+
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
@@ -105,6 +121,13 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': 'cache:11211',
+    },
+    'stream_providers': {
+        # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        # 'LOCATION': 'stream_providers_cache',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'cache:11211',
+        'KEY_PREFIX': 'sp'
     }
 }
 
@@ -145,3 +168,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django.log'),
+        },
+    },
+    'loggers': {
+        'default': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
