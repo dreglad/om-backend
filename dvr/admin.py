@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.postgres.fields import HStoreField
 from django_admin_json_editor import JSONEditorWidget
@@ -21,10 +22,28 @@ class StreamAdmin(admin.ModelAdmin):
     }
 
 
+class MicroDateTimeInput(forms.DateTimeInput):
+    supports_microseconds = True
+
+
+class ConversionForm(forms.ModelForm):
+    # start = MicroDateTimeInput(format='%Y-%m-%d %H:%M:%S')
+    class Meta:
+        model = Conversion
+        fields = '__all__'
+        widgets = {
+            'start': MicroDateTimeInput(format='%Y-%m-%d %H:%M:%S.%f')
+        }
+
 @admin.register(Conversion)
 class ConversionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'status', 'stream', 'start', 'duration')
     autocomplete_fields = ('stream',)
+    form = ConversionForm
+
+    # formfield_overrides = {
+    #     models.DateTimeField: {'widget': MicroDateTimeInput()},
+    # }
 
 
 # class ConversionInline(admin.TabularInline):

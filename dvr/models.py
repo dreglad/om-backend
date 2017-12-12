@@ -48,8 +48,14 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
     def end(self):
         return self.start + self.duration
 
+    def save(self, *args, **kwargs):
+        was_new = not self.pk and self.state == Conversion.PENDING
+        super(self, Conversion).save(*args, **kwargs)
+        if was_new:
+            tasks.convert.delay(self.pk)
+
     class Meta:
-        ordering = ('-start',)
+        ordering = ('-pk',)
         verbose_name = _('conversion')
         verbose_name_plural = _('conversions')
 

@@ -1,3 +1,4 @@
+import logging
 from time import sleep
 
 from celery import shared_task
@@ -9,25 +10,26 @@ logger = logging.getLogger('tasks')
 
 
 @shared_task
-def convert(conv):
+def convert(conversion_pk):
     try:
-        conv = Conversion.objects.get(pk=conv_pk)
+        conv = Conversion.objects.get(pk=conversion_pk)
     except Conversion.DoesNotExist:
         logger.warning('No Conversion object found: {}'.format(conversion_pk))
+        return
 
-    conv.set_status(Conversion.RUNNING, progress=0)
+    conv.set_status(Conversion.STARTED, progress=0)
 
     provider = conv.stream.get_provider()
-    conv_ref, error = provider.request_conversion(dvr_store, conv.start, conv.duration)
+    result = provider.request_conversion(conv.dvr_store, conv.start, conv.duration)
 
-    if error:
-        conv.set_status(Conversion.FAILURE, result=error)
+    if not result['success']:
+        conv.set_status(Conversion.FAILURE, result=result.get('message'))
         return False
 
     while True:
-        progress, error = wowza.query_conversion(conv_ref)
+        progress, error = provider.request_conversion(result['message'])
         if error:
-            conv.set_status(Conversion.RUNNING, progress=progress)
+            conv.set_status(Conversion.STARTED, progress=progress)
             return False
         elif progress >= 1:
             # finished
@@ -36,6 +38,9 @@ def convert(conv):
         else:
             sleep(2)
 
+@shared_task
+def take_screenshots(file):
+    pass
 
 @shared_task
 def join(x, y):

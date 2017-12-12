@@ -8,7 +8,11 @@ class ConversionSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name='conversion-detail', read_only=True)
     class Meta:
         model = Conversion
-        fields = ('id', 'created_at', 'stream_url', 'stream_id', 'dvr_store', 'start', 'duration', 'end', 'status', 'result')
+        fields = (
+            'id', 'created_at', 'stream_url', 'dvr_store', 'start', 'duration',
+            'end', 'status', 'result', 'stream', 'progress', 'metadata',
+        )
+
 
 class StreamListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stream-detail', read_only=True)

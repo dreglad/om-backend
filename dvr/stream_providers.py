@@ -13,6 +13,7 @@ from urllib.parse import urljoin
 
 logger = logging.getLogger('default')
 
+
 class StreamProvider(object):
 
     def __init__(self, obj, metadata, *args, **kwargs):
@@ -60,32 +61,56 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
         }
 
 
-    def request_conversion(self, store, start, duration):
+    def request_conversion(self, conv):
         logger.info('Requesting new conversion')
 
-        filename = '{}-{}-{}.mp4'.format(self.stream.slug, slugify(start), slugify(duration))
+        # filename = '{}-{}-{}.mp4'.format(self.obj.slug, slugify(start), slugify(duration))
+        filename = '{}.mp4'.format(conv.pk)
+        params = {
+            'dvrConverterStartTime': int(conv.start.timestamp() * 1000),
+            'dvrConverterDuration': int(conv.duration.total_seconds() * 1000),
+            'dvrConverterOutputFilename': filename,
+            'dvrConverterStoreList': conv.dvr_store.replace('240p', '1080p')
+        }
         try:
-            data = {
-                'dvrConverterStartTime': start.timestamp(),
-                'dvrConverterDuration': duration.total_seconds(),
-                'dvrConverterOutputFilename': filename,
-            }
             r = requests.put(join(self.wowza_api_url, 'dvrstores/actions/expire'))
             r = requests.put(join(self.wowza_api_url, 'dvrstores/actions/convert'),
-                             data, headers={'Accept': 'application/json'})
+                             params=params, headers={'Accept': 'application/json'})
             result = json.loads(r.text)
+            logger.info('Received request conversion to {} with response: {}'.format(r.url, result))
+
+            if not result.get('success'):
+                logger.warning('Provider rejected conversion: {}'.format(result))
+                return {'success': False, 'message': result.get('message')}
         except:
             logger.error('Error while requesting a conversion')
-            return False
+            return {'success': False, 'message': 'Error while requesting conversion'}
 
-        return {'id': result['takId'], 'filename': result['fileName']}
+        return {'success': result.get('success') is True}
 
+    def retreive_groupconversions(self):
+        try:
+            r = requests.get(join(self.wowza_api_url, 'dvrstores'), headers={'Accept': 'application/json'})
+            return json.loads(r.text)['groupConversionStatusList']
+        except:
+            logger.error('Error while requesting dvrstore list while retrieving groupconversions')
+            return []
 
-    def query_conversion(self, store):
-        conversions = self.get_or_set_cache(
-            'conversions-{}'.format(store),
-            partial(self.self.retrieve_store_details, store),
-            5)
+    def query_conversion(self, id):
+        group_conversions = self.get_or_set_cache('groupconversions', self.retreive_groupconversions, 5)
+        try:
+            status = next(item['conversionStatusList'][0] for item in group_conversions if item["id"] == int(id))
+        except:
+            return {'success': False, 'message': "Error while querying conversion status"}
+
+        if not status or status.get('state') == 'FAILURE':
+            return {'success': False, 'message': ''}
+        return {
+            'success': True,
+            'progress': 0,
+            'state': status.get('state'),
+        }
+
         # self.retrieve_store_details(['groupConversionStatusList'])
         # partial(self.retrieve_store_details, current_store),
         # try:

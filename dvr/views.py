@@ -13,7 +13,7 @@ class ConversionViewSet(viewsets.ModelViewSet):
     """
     queryset = Conversion.objects.all()
     serializer_class = ConversionSerializer
-    # filter_fields = ('strea)
+    filter_fields = ('stream',)
 
 
 class StreamViewSet(viewsets.ModelViewSet):
