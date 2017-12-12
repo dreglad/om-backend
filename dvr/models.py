@@ -50,7 +50,7 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
 
     def save(self, *args, **kwargs):
         was_new = not self.pk and self.status == Conversion.PENDING
-        super(self, Conversion).save(*args, **kwargs)
+        super(Conversion, self).save(*args, **kwargs)
         if was_new:
             tasks.convert.delay(self.pk)
 
