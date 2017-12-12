@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.core.cache import caches
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -86,7 +87,7 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             logger.error('Error while requesting a conversion')
             return {'success': False, 'message': 'Error while requesting conversion'}
 
-        return {'success': result.get('success') is True}
+        return {'success': result.get('success'), 'message': result.get('message')}
 
     def retreive_groupconversions(self):
         try:
@@ -96,20 +97,25 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             logger.error('Error while requesting dvrstore list while retrieving groupconversions')
             return []
 
-    def query_conversion(self, id):
+    def query_conversion(self, ref, conv):
+        if ref: id = ref.split('ID:')[-1]
         group_conversions = self.get_or_set_cache('groupconversions', self.retreive_groupconversions, 5)
         try:
             status = next(item['conversionStatusList'][0] for item in group_conversions if item["id"] == int(id))
+            print(status, 'aquiqqq')
         except:
-            return {'success': False, 'message': "Error while querying conversion status"}
+            return False
 
-        if not status or status.get('state') == 'FAILURE':
-            return {'success': False, 'message': ''}
-        return {
-            'success': True,
-            'progress': 0,
-            'state': status.get('state'),
-        }
+        if status.get('state') == 'SUCCESSFUL':
+            return {'status': 'SUCCESS', 'progress': 1}
+        if status.get('state') == 'FAILURE':
+            return {'status': 'FAILURE'}
+        if status.get('state') == 'RUNNING':
+            progress = timedelta(milliseconds=status['fileDuration']).total_seconds() / float(conv.duration.total_seconds())
+            return {'status': 'STARTED', 'progress': progress}
+
+            
+
 
         # self.retrieve_store_details(['groupConversionStatusList'])
         # partial(self.retrieve_store_details, current_store),

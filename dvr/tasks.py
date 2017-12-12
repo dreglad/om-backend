@@ -5,7 +5,6 @@ from celery import shared_task
 
 from .models import Conversion
 
-
 logger = logging.getLogger('tasks')
 
 
@@ -20,23 +19,25 @@ def convert(conversion_pk):
     conv.set_status(Conversion.STARTED, progress=0)
 
     provider = conv.stream.get_provider()
-    result = provider.request_conversion(conv.dvr_store, conv.start, conv.duration)
+    result = provider.request_conversion(conv)
 
-    if not result['success']:
+    if not result.get('success'):
         conv.set_status(Conversion.FAILURE, result=result.get('message'))
         return False
 
     while True:
-        progress, error = provider.request_conversion(result['message'])
-        if error:
-            conv.set_status(Conversion.STARTED, progress=progress)
-            return False
-        elif progress >= 1:
-            # finished
-            conv.set_status(Conversion.SUCCESS, progress=progress)
+        status = provider.query_conversion(result.get('message'), conv)
+        if not status:
+            # error
+            conv.set_status('FAILURE')
+            break
+        code = status.pop('status')
+        conv.set_status(code, **status)
+        if code in ['FAILURE', 'SUCCESS']:
             break
         else:
-            sleep(2)
+            logger.debug('Sleeping')
+
 
 @shared_task
 def take_screenshots(file):

@@ -52,7 +52,8 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
         was_new = not self.pk and self.status == Conversion.PENDING
         super(Conversion, self).save(*args, **kwargs)
         if was_new:
-            tasks.convert.delay(self.pk)
+            from .tasks import convert
+            convert.delay(self.pk)
 
     class Meta:
         ordering = ('-pk',)
