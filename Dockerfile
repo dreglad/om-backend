@@ -1,8 +1,15 @@
 # FROM python:3
  FROM jrottenberg/ffmpeg
 
- RUN apt-get -qq update
- RUN apt-get -qqy install python3 python3-pip
+RUN apt-get update && \
+    apt-get upgrade -y && \ 
+    apt-get install -y \
+    python3 \
+    python3-dev \
+    python3-setuptools \
+    python3-pip \
+    uwsgi
+    nginx
 
  ENV PYTHONUNBUFFERED 1
  
