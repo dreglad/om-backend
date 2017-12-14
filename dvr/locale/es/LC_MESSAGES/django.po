@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-14 04:31+0000\n"
+"POT-Creation-Date: 2017-12-14 05:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: dvr/admin.py:18 dvr/mixins.py:51
+#: dvr/admin.py:13 dvr/mixins.py:51
 msgid "metadata"
 msgstr "metadatos"
 
 #: dvr/mixins.py:16
 msgid "Pending"
-msgstr ""
+msgstr "Pendiente"
 
 #: dvr/mixins.py:17
 msgid "Queued"
@@ -122,7 +122,7 @@ msgstr "conversión"
 msgid "conversions"
 msgstr "conversiones"
 
-#: dvr/models.py:71 dvr/models.py:101
+#: dvr/models.py:71 dvr/models.py:114
 msgid "video"
 msgstr "video"
 
@@ -142,7 +142,7 @@ msgstr "FTP"
 msgid "YouTube"
 msgstr "YouTube"
 
-#: dvr/models.py:87
+#: dvr/models.py:87 dvr/models.py:99
 msgid "active"
 msgstr "activo"
 
@@ -158,14 +158,26 @@ msgstr "canal de distribución"
 msgid "distribution channels"
 msgstr "canales de distribución"
 
-#: dvr/models.py:102
+#: dvr/models.py:101
 msgid "channel"
 msgstr "canal"
 
+#: dvr/models.py:104
+msgid "distribution profile"
+msgstr "perfil de distribución"
+
 #: dvr/models.py:105
+msgid "distribution profiles"
+msgstr "perfiles de distribución"
+
+#: dvr/models.py:115
+msgid "profile"
+msgstr "perfil"
+
+#: dvr/models.py:119
 msgid "distribution attempt"
 msgstr "intento de distribución"
 
-#: dvr/models.py:106
+#: dvr/models.py:120
 msgid "distribution attempts"
 msgstr "intentos de distribución"

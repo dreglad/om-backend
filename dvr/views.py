@@ -58,3 +58,11 @@ class DistributionChannelViewSet(viewsets.ModelViewSet):
     serializer_class = DistributionChannelSerializer
     filter_fields = ('name',)
 
+
+class DistributionProfileViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = DistributionProfile.objects.all()
+    serializer_class = DistributionProfileSerializer
+    filter_fields = ('name',)

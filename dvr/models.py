@@ -92,6 +92,19 @@ class DistributionChannel(NameableMixin, EphemeralMixin, MetadatableMixin, Confi
         verbose_name_plural = _('distribution channels')
 
 
+class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, ConfigurableMixin, models.Model):
+    """
+    Distribution profile model
+    """
+    active = models.BooleanField(_('active'), default=True)
+    channel = models.ForeignKey(
+        'DistributionChannel', verbose_name=_('channel'), related_name='profiles', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('distribution profile')
+        verbose_name_plural = _('distribution profiles')
+
+
 class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, models.Model):
     """
     Distribution attemp model
@@ -99,7 +112,8 @@ class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, model
     video = models.ForeignKey(
         'Video', on_delete=models.CASCADE,
         verbose_name=_('video'), related_name='distribution_attempts')
-    channel = models.ForeignKey('DistributionChannel', verbose_name=_('channel'), on_delete=models.CASCADE)
+    profile = models.ForeignKey('DistributionProfile', verbose_name=_('profile'), on_delete=models.CASCADE,
+                                related_name='attempts')
 
     class Meta:
         verbose_name = _('distribution attempt')

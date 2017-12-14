@@ -7,20 +7,21 @@ from django.utils.translation import ugettext_lazy as _
 from .models import *
 
 
-@admin.register(Stream)
-class StreamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'provider', 'metadata')
-    prepopulated_fields = {"slug": ("name",)}
-    search_fields = ('name',)
-
-    SCHEMA = {
+class BaseAdmin(admin.ModelAdmin):
+    DICT_SCHEMA = {
         'type': 'object',
         'title': _('metadata'),
     }
     formfield_overrides = {
-        HStoreField: {'widget': JSONEditorWidget(SCHEMA) }
+        HStoreField: {'widget': JSONEditorWidget(DICT_SCHEMA) }
     }
 
+
+@admin.register(Stream)
+class StreamAdmin(BaseAdmin):
+    list_display = ('name', 'provider', 'metadata')
+    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ('name',)
 
 class MicroDateTimeInput(forms.DateTimeInput):
     supports_microseconds = True
@@ -36,8 +37,9 @@ class ConversionForm(forms.ModelForm):
         }
 
 @admin.register(Conversion)
-class ConversionAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'status', 'stream', 'start', 'duration')
+class ConversionAdmin(BaseAdmin):
+    list_display = ('pk', 'status', 'dvr_store', 'stream', 'start', 'duration')
+    list_filter = ('stream', 'status', 'dvr_store')
     autocomplete_fields = ('stream',)
     form = ConversionForm
 
@@ -50,16 +52,20 @@ class ConversionAdmin(admin.ModelAdmin):
 #     model = Conversion
 
 @admin.register(Video)
-class VideoAdmin(admin.ModelAdmin):
+class VideoAdmin(BaseAdmin):
     pass
 
 
 @admin.register(DistributionChannel)
-class DistributionChannelAdmin(admin.ModelAdmin):
+class DistributionChannelAdmin(BaseAdmin):
     list_display = ('name', 'type', 'active', 'created_at', 'metadata', 'configuration')
 
 
-@admin.register(DistributionAttempt)
-class DistributionAttemptAdmin(admin.ModelAdmin):
-    pass
+@admin.register(DistributionProfile)
+class DistributionProfileAdmin(BaseAdmin):
+    list_display = ('name', 'channel', 'active', 'created_at', 'metadata', 'configuration')
 
+
+@admin.register(DistributionAttempt)
+class DistributionAttemptAdmin(BaseAdmin):
+    list_display = ('created_at', 'status', 'profile', 'result')
