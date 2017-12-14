@@ -102,7 +102,6 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
         group_conversions = self.get_or_set_cache('groupconversions', self.retreive_groupconversions, 5)
         try:
             status = next(item['conversionStatusList'][0] for item in group_conversions if item["id"] == int(id))
-            print(status, 'aquiqqq')
         except:
             return False
 
