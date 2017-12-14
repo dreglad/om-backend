@@ -56,7 +56,7 @@ class VideoAdmin(admin.ModelAdmin):
 
 @admin.register(DistributionChannel)
 class DistributionChannelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'active', 'created_at', 'metadata')
+    list_display = ('name', 'type', 'active', 'created_at', 'metadata', 'configuration')
 
 
 @admin.register(DistributionAttempt)

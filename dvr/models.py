@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from .mixins import EphemeralMixin, WorkableMixin, MetadatableMixin, NameableMixin
+from .mixins import *
 from .stream_providers import *
 
 logger = logging.getLogger('default')
@@ -72,7 +72,7 @@ class Video(EphemeralMixin, WorkableMixin, MetadatableMixin, models.Model):
         verbose_name_plural = _('videos')
 
 
-class DistributionChannel(NameableMixin, EphemeralMixin, MetadatableMixin, models.Model):
+class DistributionChannel(NameableMixin, EphemeralMixin, MetadatableMixin, ConfigurableMixin, models.Model):
     """
     Distribution channel model
     """

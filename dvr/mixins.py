@@ -22,7 +22,7 @@ class WorkableMixin(models.Model):
     status = models.CharField(_('status'), max_length=32, db_index=True, editable=True,
                                 choices=STATUS_CHOICES, default=PENDING)
     progress = models.FloatField(_('progress'), null=True, blank=True, editable=True)
-    result = models.CharField(_('result'), max_length=255, blank=True, null=True, editable=False)
+    result = HStoreField(_('result'), null=True, blank=True)
 
     def set_status(self, status, **field_values):
         """ Update object status without saving with optional additional fields (like progress and/or result"""
@@ -49,6 +49,12 @@ class EphemeralMixin(models.Model):
 
 class MetadatableMixin(models.Model):
     metadata = HStoreField(_('metadata'), null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+class ConfigurableMixin(models.Model):
+    configuration = HStoreField(_('configuration'), null=True, blank=True)
 
     class Meta:
         abstract = True
