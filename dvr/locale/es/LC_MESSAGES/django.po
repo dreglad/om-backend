@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-04 00:40-0600\n"
+"POT-Creation-Date: 2017-12-14 04:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,23 +18,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: dvr/mixins.py:15
-msgid "Waiting"
-msgstr "En espera"
+#: dvr/admin.py:18 dvr/mixins.py:51
+msgid "metadata"
+msgstr "metadatos"
 
 #: dvr/mixins.py:16
+msgid "Pending"
+msgstr ""
+
+#: dvr/mixins.py:17
 msgid "Queued"
 msgstr "En cola"
 
-#: dvr/mixins.py:17
-msgid "Running"
-msgstr "Procesando"
-
 #: dvr/mixins.py:18
+msgid "Started"
+msgstr "En progreso"
+
+#: dvr/mixins.py:19
 msgid "Success"
 msgstr "Exitoso"
 
-#: dvr/mixins.py:19
+#: dvr/mixins.py:20
 msgid "Failure"
 msgstr "Fallido"
 
@@ -42,118 +46,126 @@ msgstr "Fallido"
 msgid "status"
 msgstr "estado"
 
-#: dvr/mixins.py:23
+#: dvr/mixins.py:24
 msgid "progress"
 msgstr "progreso"
 
-#: dvr/mixins.py:24
+#: dvr/mixins.py:25
 msgid "result"
 msgstr "resultado"
 
-#: dvr/mixins.py:31
+#: dvr/mixins.py:37
 msgid "created at"
 msgstr "creado en"
 
-#: dvr/mixins.py:32
+#: dvr/mixins.py:39
+msgid "created by"
+msgstr "creado por"
+
+#: dvr/mixins.py:41
 msgid "modified at"
 msgstr "modificado en"
 
-#: dvr/mixins.py:39
-msgid "metadata"
-msgstr "metadatos"
+#: dvr/mixins.py:43
+msgid "modified by"
+msgstr "modificado por"
 
-#: dvr/mixins.py:46
+#: dvr/mixins.py:57
+msgid "configuration"
+msgstr "configuración"
+
+#: dvr/mixins.py:64
+msgid "file"
+msgstr "archivo"
+
+#: dvr/mixins.py:72
 msgid "name"
 msgstr "nombre"
 
-#: dvr/mixins.py:47
+#: dvr/mixins.py:73
 msgid "slug"
 msgstr "identificador"
 
-#: dvr/models.py:11
-msgid "live URL"
-msgstr "URL en vivo"
+#: dvr/models.py:17
+msgid "Wowza Streaming Engine"
+msgstr "Wowza Streaming Engine"
 
-#: dvr/models.py:12
-msgid "DVR URL"
-msgstr "URL de DVR"
+#: dvr/models.py:19
+msgid "provider"
+msgstr "proveedor"
 
-#: dvr/models.py:13
-msgid "API URL"
-msgstr "URL de API"
-
-#: dvr/models.py:16 dvr/models.py:26
+#: dvr/models.py:31 dvr/models.py:41
 msgid "stream"
 msgstr "transmisión"
 
-#: dvr/models.py:17
+#: dvr/models.py:32
 msgid "streams"
 msgstr "transmisiones"
 
-#: dvr/models.py:28
-msgid "source URL"
-msgstr ""
+#: dvr/models.py:43
+msgid "DVR Store"
+msgstr "Almacén DVR"
 
-#: dvr/models.py:29
+#: dvr/models.py:44
 msgid "start"
 msgstr "inicio"
 
-#: dvr/models.py:30
+#: dvr/models.py:45
 msgid "duration"
 msgstr "duración"
 
-#: dvr/models.py:38
+#: dvr/models.py:60
 msgid "conversion"
 msgstr "conversión"
 
-#: dvr/models.py:39 dvr/models.py:46
+#: dvr/models.py:61 dvr/models.py:68
 msgid "conversions"
 msgstr "conversiones"
 
-#: dvr/models.py:49 dvr/models.py:79
+#: dvr/models.py:71 dvr/models.py:101
 msgid "video"
 msgstr "video"
 
-#: dvr/models.py:50
+#: dvr/models.py:72
 msgid "videos"
 msgstr "videos"
 
-#: dvr/models.py:61
+#: dvr/models.py:83
 msgid "Captura-Multimedia"
 msgstr "Captura-Multimedia"
 
-#: dvr/models.py:62
+#: dvr/models.py:84
 msgid "FTP"
 msgstr "FTP"
 
-#: dvr/models.py:63
+#: dvr/models.py:85
 msgid "YouTube"
 msgstr "YouTube"
 
-#: dvr/models.py:65
+#: dvr/models.py:87
 msgid "active"
 msgstr "activo"
 
-#: dvr/models.py:66
+#: dvr/models.py:88
 msgid "type"
 msgstr "tipo"
 
-#: dvr/models.py:69
+#: dvr/models.py:91
 msgid "distribution channel"
 msgstr "canal de distribución"
 
-#: dvr/models.py:70
+#: dvr/models.py:92
 msgid "distribution channels"
 msgstr "canales de distribución"
 
-#: dvr/models.py:80
+#: dvr/models.py:102
 msgid "channel"
 msgstr "canal"
 
-#: dvr/models.py:83
+#: dvr/models.py:105
 msgid "distribution attempt"
 msgstr "intento de distribución"
 
-#: dvr/models.py:84
+#: dvr/models.py:106
 msgid "distribution attempts"
 msgstr "intentos de distribución"
