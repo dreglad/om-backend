@@ -3,5 +3,6 @@
 *.py[co]
 .tox/
 *.log
+*.sublime-*
 __pycache__
 MANIFEST
