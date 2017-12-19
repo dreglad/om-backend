@@ -30,12 +30,14 @@ services:
 
   # Django web server
   web:
-    build: .
-    # command: python3 manage.py createsuperuser 
-    entrypoint: /app/docker-entrypoint.sh
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    entrypoint: /app/web-entrypoint.sh
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - media:/mnt/media
     ports:
       - "8000:8000"
     depends_on:
@@ -44,14 +46,31 @@ services:
       - redis
       - rabbitmq
 
+  media:
+    build:
+      context: .
+      dockerfile: media.Dockerfile
+    volumes:
+      - media:/mnt/media
+    ports:
+      - "80:80"
+    links:
+      - web
+
   # Celery worker
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: web.Dockerfile
     command: ./run_celery.sh
     volumes:
       - .:/app
+      - media:/mnt/media
     depends_on:
       - db
       - rabbitmq
       - redis
       - cache
+
+volumes:
+  media:

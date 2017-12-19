@@ -9,7 +9,6 @@ RUN apt-get update && \
     python3-setuptools \
     python3-pip \
     uwsgi
-    nginx
 
  ENV PYTHONUNBUFFERED 1
  
@@ -20,5 +19,5 @@ RUN apt-get update && \
  RUN pip3 install --upgrade pip
  RUN pip3 install -r requirements.txt
  
- RUN chmod +x docker-entrypoint.sh
+ RUN chmod +x web-entrypoint.sh
  ENTRYPOINT []
