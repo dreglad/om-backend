@@ -1,16 +1,20 @@
 from datetime import timedelta
-from django.core.cache import caches
-from django.utils.functional import cached_property
-from django.utils.text import slugify
-import requests
-
 from functools import partial
 from itertools import groupby
 import json
 import logging
 from operator import itemgetter, methodcaller
 from posixpath import join
+import random
+import time
 from urllib.parse import urljoin
+
+from cacheback.base import Job as CacheJob
+from cacheback.decorators import cacheback
+from django.core.cache import caches
+from django.utils.functional import cached_property
+from django.utils.text import slugify
+import requests
 
 logger = logging.getLogger('default')
 
@@ -47,18 +51,34 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
         )
 
     def get_data(self):
-        stores = self.get_or_set_cache('stores', self.retrieve_stores, 10)
-        current_store = next(iter(stores.values()))[0]
-        details = self.get_or_set_cache(
-            current_store['name'] + '-details',
-            partial(self.retrieve_store_details, current_store),
-            15)
+        stream_stores = self.get_or_set_cache('stores', self.retrieve_stores, 10)
+        stores = [v for k, v in stream_stores.items() if k.find('1080p') != -1][0]
+        # stores2 = next(iter(stream_stores.values()))
+        current_store = stores[0]
+
+        current_details = StoreDetailsCacheJob().get(current_store, is_current=True)
+        if current_details:
+            current_details = json.loads(current_details)
+            current_details = {
+                prop: current_details['DvrConverterStore'][prop]
+                for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
+            }            
+
+        details = [current_details]
+        for store in stores[1:30]:
+            store_details = StoreDetailsCacheJob().get(store, is_current=False)
+            print('son', store_details)
+            if store_details:
+                store_details = json.loads(store_details)
+                details.append({
+                    prop: store_details['DvrConverterStore'][prop]
+                    for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
+                })
 
         return {
-            'stores': stores,
-            'current_store_details': {
-                prop: details['DvrConverterStore'][prop] for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
-            },
+            'stores': stream_stores,
+            'current_store_details': current_details,
+            'store_details': details,
         }
 
 
@@ -113,11 +133,8 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             progress = timedelta(milliseconds=status['fileDuration']).total_seconds() / float(conv.duration.total_seconds())
             return {'status': 'STARTED', 'progress': progress}
 
-            
-
-
-        # self.retrieve_store_details(['groupConversionStatusList'])
-        # partial(self.retrieve_store_details, current_store),
+        # retrieve_store_details(['groupConversionStatusList'])
+        # partial(retrieve_store_details, current_store),
         # try:
         #     r = requests.get(
         #         join(self.wowza_api_url, 'dvrstores/actions/convert'),
@@ -125,18 +142,6 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
         #     result = json.loads(r.text)
         # except Exception as e:
         #     raise
-
-
-    def retrieve_store_details(self, store):
-        logger.info('Retrieving store details for store: {}'.format(store))
-        data = {}
-        try:
-            r = requests.get(store['url'], headers={'Accept': 'application/json'})
-            r.raise_for_status()
-            data = json.loads(r.text)
-        except:
-            logger.eror("Error while retrieving store details from provider: {}".format(e))
-        return data
 
 
     def retrieve_stores(self):
@@ -155,7 +160,57 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             sort_key = lambda s: int(s['name'].rsplit('.', 1)[0].replace(self.metadata['wseStream'], '').strip('_p'))
             stores = sorted(stores, key=sort_key, reverse=True)
             group_key = lambda s: s['name'].rsplit('.', 1)[0]
-            stores = {k: list(v) for k, v in groupby(stores, key=group_key)}
+            stores = {k: list(v)[:30] for k, v in groupby(stores, key=group_key)}
         except:
             logger.eror("Error while retrieving data from provider: {}")
         return stores
+
+
+class StoreDetailsCacheJob(CacheJob):
+
+    def fetch(self, store, is_current=False):
+        logger.info('Retrieving store details for store: {}'.format(store))
+        data = {}
+        try:
+            r = requests.get(store['url'], headers={'Accept': 'application/json'})
+            r.raise_for_status()
+        except:
+            logger.eror("Error while retrieving store details from provider: {}".format(e))
+        return r.text
+
+    def expiry(self, store_url, is_current=False):
+        now = time.time()
+        if is_current:
+            return now + 30
+        else:
+            return now + 900 + random.randint(0, 900)
+
+    def should_missing_item_be_fetched_synchronously(self, store_url, is_current):
+        return is_current
+
+    def should_stale_item_be_fetched_synchronously(self, *args, **kwargs):
+        return kwargs.get('is_current')
+
+
+# def soft_retrieve_store_details(store):
+#     logger.info('Retrieving store details for store: {}'.format(store))
+#     data = {}
+#     try:
+#         r = requests.get(store['url'], headers={'Accept': 'application/json'})
+#         r.raise_for_status()
+#         # data = json.loads(r.text)
+#     except:
+#         logger.eror("Error while retrieving store details from provider: {}".format(e))
+#     print(r.text)
+#     return r.text
+# @cacheback(fetch_on_miss=True, lifetime=30)
+# def retrieve_store_details(store):
+#     logger.info('Retrieving store details for store: {}'.format(store))
+#     data = {}
+#     try:
+#         r = requests.get(store['url'], headers={'Accept': 'application/json'})
+#         r.raise_for_status()
+#         # data = json.loads(r.text)
+#     except:
+#         logger.eror("Error while retrieving store details from provider: {}".format(e))
+#     return r.text

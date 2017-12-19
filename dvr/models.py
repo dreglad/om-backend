@@ -61,6 +61,7 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
         verbose_name_plural = _('conversions')
 
 
+
 class Video(EphemeralMixin, WorkableMixin, MetadatableMixin, models.Model):
     """
     Video model

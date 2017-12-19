@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
+    'cacheback',
     'corsheaders',
-    'django_celery_results',
+    # 'django_celery_results',
     'rest_framework',
     'django_filters',
     'django_admin_json_editor',
@@ -73,7 +74,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-CELERY_RESULT_BACKEND = 'django-cache'
+# CELERY_RESULT_BACKEND = 'django-cache'
 
 ROOT_URLCONF = 'live2vod.urls'
 
@@ -183,12 +184,21 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'django.log'),
         },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
         'default': {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'cacheback': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }

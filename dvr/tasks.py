@@ -38,11 +38,6 @@ def convert(conversion_pk):
         else:
             logger.debug('Sleeping')
 
-
-@shared_task
-def take_screenshots(file):
-    pass
-
 @shared_task
 def join(x, y):
     return x * y

@@ -3,7 +3,6 @@ psycopg2
 python-memcached
 django-debug-toolbar
 celery
-django-celery-results
 djangorestframework
 markdown
 django-filter
@@ -12,3 +11,4 @@ PyYAML
 requests
 django-admin-json-editor
 django-cors-headers
+django-cacheback[celery]
