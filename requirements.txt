@@ -4,7 +4,7 @@ python-memcached
 django-debug-toolbar
 celery
 djangorestframework
-djangorestframework-filters\
+djangorestframework-filters
 django-filter
 markdown
 Pillow
