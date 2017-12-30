@@ -76,18 +76,23 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
             from .tasks import convert
             convert.delay(self.pk)
 
+
+    @property
+    def end(self):
+        return self.start + self.duration
+
     class Meta:
         ordering = ('-pk',)
         verbose_name = _('conversion')
         verbose_name_plural = _('conversions')
 
 
-
-class Video(EphemeralMixin, WorkableMixin, MetadatableMixin, models.Model):
+class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, models.Model):
     """
     Video model
     """
-    conversions = models.ManyToManyField('Conversion', blank=True, verbose_name=_('conversions'))
+    conversions = models.ManyToManyField('Conversion', verbose_name=_('conversions'), blank=True)
+
 
     class Meta:
         verbose_name = _('video')

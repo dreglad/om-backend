@@ -65,15 +65,22 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             }            
 
         details = [current_details]
-        for store in stores[1:15]:
-            store_details = StoreDetailsCacheJob().get(store, is_current=False)
-            print('son', store_details)
-            if store_details:
-                store_details = json.loads(store_details)
-                details.append({
-                    prop: store_details['DvrConverterStore'][prop]
-                    for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
-                })
+        for store in stores[1:]:
+            try:
+                store_details = StoreDetailsCacheJob().get(store, is_current=False)
+                print('son', store_details)
+                if store_details:
+                    store_details = json.loads(store_details)['DvrConverterStore']
+                    if store_details['utcStart'] and store_details['utcEnd']:
+                        logger.info('Appending details data: {}'.format(store_details))
+                        details.append({
+                            prop: store_details[prop]
+                            for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
+                    })
+            except:
+                logger.error('Error while parsing store details')
+            if len(details) > 10:
+                break
 
         return {
             'stores': stream_stores,
@@ -162,7 +169,7 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             group_key = lambda s: s['name'].rsplit('.', 1)[0]
             stores = {k: list(v)[:30] for k, v in groupby(stores, key=group_key)}
         except:
-            logger.eror("Error while retrieving data from provider: {}")
+            logger.error("Error while retrieving data from provider: {}")
         return stores
 
 
@@ -176,21 +183,22 @@ class StoreDetailsCacheJob(CacheJob):
             r.raise_for_status()
             logger.debug('Data retrieved: {}'.format(r.text))
         except:
-            logger.eror("Error while retrieving store details from provider: {}".format(e))
+            logger.error("Error while retrieving store details from provider: {}".format(e))
+            return
         return r.text
 
     def expiry(self, store_url, is_current=False):
         now = time.time()
         if is_current:
-            return now + 120
+            return now + 60
         else:
-            return now + 900 + random.randint(0, 900)
+            return now + 120 + random.randint(0, 120)
 
     def should_missing_item_be_fetched_synchronously(self, *args, **kwargs):
-        return kwargs.get('is_current')
+        return True # kwargs.get('is_current')
 
     def should_stale_item_be_fetched_synchronously(self, *args, **kwargs):
-        return kwargs.get('is_current')
+        return True # kwargs.get('is_current')
 
 
 # def soft_retrieve_store_details(store):
@@ -201,7 +209,7 @@ class StoreDetailsCacheJob(CacheJob):
 #         r.raise_for_status()
 #         # data = json.loads(r.text)
 #     except:
-#         logger.eror("Error while retrieving store details from provider: {}".format(e))
+#         logger.error("Error while retrieving store details from provider: {}".format(e))
 #     print(r.text)
 #     return r.text
 # @cacheback(fetch_on_miss=True, lifetime=30)
@@ -213,5 +221,5 @@ class StoreDetailsCacheJob(CacheJob):
 #         r.raise_for_status()
 #         # data = json.loads(r.text)
 #     except:
-#         logger.eror("Error while retrieving store details from provider: {}".format(e))
+#         logger.Error("Error while retrieving store details from provider: {}".format(e))
 #     return r.text
