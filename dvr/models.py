@@ -32,9 +32,30 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
         verbose_name_plural = _('streams')
 
 
+class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
+    stream = models.ForeignKey(
+        'Stream', verbose_name=_('stream'), related_name='scene_analysis', on_delete=models.CASCADE)
+    start = models.DateTimeField(_('start'))
+    end = models.DateTimeField(_('end'))
+
+
+class SceneChange(EphemeralMixin, models.Model):
+    scene_analysis = models.ForeignKey(
+        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes', on_delete=models.CASCADE)
+    time = models.DateTimeField(_('time', ))
+    value = models.FloatField(_('value'), null=True, blank=True)
+
+
+# class Store(EphemeralMixin, models.Model):
+#     stream = models.ForeignKey('Stream', verbose_name=_('stream'), related_name='stores', )
+#     name = models.CharField(_('name'), max_length=128)
+#     start = models.DateTimeField(_('start'))
+#     start = models.DateTimeField(_('end'))
+
+
 class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
     """
-    Converison model
+    Conversion model
     """
     stream = models.ForeignKey(
         'Stream', null=True, blank=True, on_delete=models.CASCADE,

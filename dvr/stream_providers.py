@@ -65,7 +65,7 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
             }            
 
         details = [current_details]
-        for store in stores[1:30]:
+        for store in stores[1:15]:
             store_details = StoreDetailsCacheJob().get(store, is_current=False)
             print('son', store_details)
             if store_details:
@@ -174,6 +174,7 @@ class StoreDetailsCacheJob(CacheJob):
         try:
             r = requests.get(store['url'], headers={'Accept': 'application/json'})
             r.raise_for_status()
+            logger.debug('Data retrieved: {}'.format(r.text))
         except:
             logger.eror("Error while retrieving store details from provider: {}".format(e))
         return r.text
@@ -181,12 +182,12 @@ class StoreDetailsCacheJob(CacheJob):
     def expiry(self, store_url, is_current=False):
         now = time.time()
         if is_current:
-            return now + 30
+            return now + 120
         else:
             return now + 900 + random.randint(0, 900)
 
-    def should_missing_item_be_fetched_synchronously(self, store_url, is_current):
-        return is_current
+    def should_missing_item_be_fetched_synchronously(self, *args, **kwargs):
+        return kwargs.get('is_current')
 
     def should_stale_item_be_fetched_synchronously(self, *args, **kwargs):
         return kwargs.get('is_current')

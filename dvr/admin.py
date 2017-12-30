@@ -69,3 +69,13 @@ class DistributionProfileAdmin(BaseAdmin):
 @admin.register(DistributionAttempt)
 class DistributionAttemptAdmin(BaseAdmin):
     list_display = ('created_at', 'status', 'profile', 'result')
+
+
+@admin.register(SceneChange)
+class SceneChangeAdmin(BaseAdmin):
+    list_display = ('id', 'scene_analysis', 'time', 'value')
+
+
+@admin.register(SceneAnalysis)
+class SceneAnalysisAdmin(BaseAdmin):
+    list_display = ('stream', 'start', 'end', 'created_at', 'status')

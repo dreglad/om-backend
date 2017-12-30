@@ -2,6 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404  
 from rest_framework.response import Response  
+import rest_framework_filters as filters
+
 
 from .serializers import *
 from .models import *
@@ -66,3 +68,21 @@ class DistributionProfileViewSet(viewsets.ModelViewSet):
     queryset = DistributionProfile.objects.all()
     serializer_class = DistributionProfileSerializer
     filter_fields = ('name',)
+
+
+class SceneChangeFilter(filters.FilterSet):
+    class Meta:
+        model = SceneChange
+        fields = {
+          'time': ['exact', 'lt', 'gt', 'lte', 'gte'],
+          'scene_analysis__stream': ['exact'],
+        }
+
+
+class SceneChangeViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = SceneChange.objects.all()
+    serializer_class = SceneChangeSerializer
+    filter_class = SceneChangeFilter

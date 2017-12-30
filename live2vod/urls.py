@@ -32,6 +32,7 @@ router.register(r'distribution_attempts', DistributionAttemptViewSet)
 router.register(r'distribution_channels', DistributionChannelViewSet)
 router.register(r'distribution_profiles', DistributionProfileViewSet)
 router.register(r'streams', StreamViewSet)
+router.register(r'schene_changes', SceneChangeViewSet)
 router.register(r'videos', VideoViewSet)
 
 # Non-model ViewSets

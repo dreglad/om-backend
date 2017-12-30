@@ -50,3 +50,11 @@ class DistributionProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DistributionAttempt
         fields = ('channel', 'created_at', 'status')
+
+
+class SceneChangeSerializer(serializers.HyperlinkedModelSerializer):
+    stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
+    class Meta:
+        model = SceneChange
+        fields = ('id', 'stream', 'time', 'value')
+

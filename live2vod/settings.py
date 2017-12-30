@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_admin_json_editor',
+    'rest_framework_filters',
 
     'dvr',
 ]
@@ -70,7 +71,8 @@ REST_FRAMEWORK = {
     # ],
     # 'PAGE_SIZE': 10
     'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
+        # 'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework_filters.backends.DjangoFilterBackend',
     ),
 }
 
@@ -98,6 +100,8 @@ WSGI_APPLICATION = 'live2vod.wsgi.application'
 
 
 CELERY_BROKER_URL = 'amqp://user:pass@rabbitmq//'
+CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 30
+
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 # CELERY_ACCEPT_CONTENT = ['json']
