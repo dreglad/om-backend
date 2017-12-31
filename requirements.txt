@@ -4,6 +4,7 @@ python-memcached
 django-debug-toolbar
 celery
 django-celery-beat
+django-celery-results
 djangorestframework
 djangorestframework-filters
 django-filter

@@ -78,4 +78,4 @@ class SceneChangeAdmin(BaseAdmin):
 
 @admin.register(SceneAnalysis)
 class SceneAnalysisAdmin(BaseAdmin):
-    list_display = ('stream', 'start', 'end', 'created_at', 'status')
+    list_display = ('id', 'stream', 'start', 'end', 'created_at', 'modified_at', 'progress', 'status')

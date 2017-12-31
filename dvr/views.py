@@ -74,8 +74,9 @@ class SceneChangeFilter(filters.FilterSet):
     class Meta:
         model = SceneChange
         fields = {
-          'time': ['exact', 'lt', 'gt', 'lte', 'gte'],
           'scene_analysis__stream': ['exact'],
+          'time': ['exact', 'lt', 'gt', 'lte', 'gte'],
+          'value': ['exact', 'lt', 'gt', 'lte', 'gte'],
         }
 
 

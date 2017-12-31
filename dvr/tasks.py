@@ -86,14 +86,14 @@ def analyze_scenes(scene_analysis_pk):
                 scene_analysis.start.strftime('%Y%m%d%H%M%S'),
                 int(seconds * 1000))
     cmd_args = [
-        'ffmpeg', '-i', input_url, '-t', str(seconds), '-an', '-f', 'null',
+        'ffmpeg', '-i', input_url, '-t', str(seconds), '-vsync', 'passthrough', '-an', '-f', 'null',
         '-vf', 'select=\'gte(scene,{})\',metadata=print'.format(change_thresshold),
         '-']
     current_pos = None
-    print(cmd_args)
-    with Popen(cmd_args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+    scene_analysis.set_status('STARTED', progress=0)
+    with Popen(cmd_args, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stderr:
-            # logger.debug('Got scene detection output: {}'.format(line))
+            logger.debug('Got scene detection output: {}'.format(line))
             pts_time = re.findall('pts_time:(\d+\.?\d*)', line)
             if pts_time:
                 current_pos = float(pts_time[0])
@@ -107,7 +107,9 @@ def analyze_scenes(scene_analysis_pk):
                         time=scene_analysis.start + timedelta(seconds=current_pos),
                         value=float(scene_score[0])
                     )
-    scene_analysis.set_status('SUCCESS')
+                    progress = scene_analysis.duration.total_seconds() / current_pos
+                    scene_analysis.set_status('STARTED', progress=progress)
+    scene_analysis.set_status('SUCCESS', progress=1)
 
 
 @shared_task

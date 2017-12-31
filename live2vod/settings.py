@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 
     'django_celery_beat',
+    'django_celery_results',
     'cacheback',
     'corsheaders',
     # 'django_celery_results',
@@ -77,7 +78,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-# CELERY_RESULT_BACKEND = 'django-cache'
+CELERY_RESULT_BACKEND = 'django-cache'
 
 ROOT_URLCONF = 'live2vod.urls'
 

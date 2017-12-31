@@ -53,8 +53,8 @@ class DistributionProfileSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SceneChangeSerializer(serializers.HyperlinkedModelSerializer):
-    stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
+    # stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
     class Meta:
         model = SceneChange
-        fields = ('id', 'stream', 'time', 'value')
+        fields = ('id', 'time', 'value')
 
