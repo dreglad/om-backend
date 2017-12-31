@@ -107,7 +107,7 @@ def analyze_scenes(scene_analysis_pk):
                         time=scene_analysis.start + timedelta(seconds=current_pos),
                         value=float(scene_score[0])
                     )
-                    progress = scene_analysis.duration.total_seconds() / current_pos
+                    progress = current_pos / float(scene_analysis.duration.total_seconds())
                     scene_analysis.set_status('STARTED', progress=progress)
     scene_analysis.set_status('SUCCESS', progress=1)
 
