@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
+    'django_celery_beat',
     'cacheback',
     'corsheaders',
     # 'django_celery_results',

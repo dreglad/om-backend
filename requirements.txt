@@ -3,6 +3,7 @@ psycopg2
 python-memcached
 django-debug-toolbar
 celery
+django-celery-beat
 djangorestframework
 djangorestframework-filters
 django-filter
