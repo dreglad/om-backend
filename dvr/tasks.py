@@ -74,7 +74,7 @@ def analyze_scenes(scene_analysis_pk):
         logger.warning('No SceneAnalysis object found: {}'.format(scene_analysis_pk))
         return
 
-    change_thresshold = 0.70
+    change_thresshold = 0.65
     metadata = scene_analysis.stream.metadata
     seconds = scene_analysis.duration.total_seconds()
     input_url = join(
