@@ -38,6 +38,10 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
     start = models.DateTimeField(_('start'))
     end = models.DateTimeField(_('end'))
 
+    @property
+    def duration(self):
+        return self.end - self.start
+
 
 class SceneChange(EphemeralMixin, models.Model):
     scene_analysis = models.ForeignKey(
@@ -64,10 +68,6 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
     dvr_store = models.CharField(_('DVR Store'), max_length=128, blank=True, null=True)
     start = models.DateTimeField(_('start'))
     duration = models.DurationField(_('duration'))
-
-    @property
-    def end(self):
-        return self.start + self.duration
 
     def save(self, *args, **kwargs):
         was_new = not self.pk and self.status == Conversion.PENDING
