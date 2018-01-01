@@ -74,6 +74,7 @@ class DistributionAttemptAdmin(BaseAdmin):
 @admin.register(SceneChange)
 class SceneChangeAdmin(BaseAdmin):
     list_display = ('id', 'scene_analysis', 'time', 'value')
+    list_filter = ('scene_analysis', 'scene_analysis__stream')
 
 
 @admin.register(SceneAnalysis)

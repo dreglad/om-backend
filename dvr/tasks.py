@@ -7,20 +7,13 @@ from time import sleep
 from urllib.parse import urljoin
 
 from django.db.models import F
-from celery import shared_task
+from django.utils import timezone
+from celery import shared_task, task
 from celery.decorators import periodic_task
 
-from .models import Conversion, SceneAnalysis, SceneChange
+from .models import Conversion, SceneAnalysis, SceneChange, Stream
 
 logger = logging.getLogger('tasks')
-
-
-# @periodic_task
-# def dispatch_conversions():
-#     # Pending convs
-#     for conv in Conversion.objects.filter('PENDING'):
-#         conv.set_status('QUEUED')
-#         convert.delay(conv.pk)
 
 
 # @periodic_task
@@ -31,38 +24,53 @@ logger = logging.getLogger('tasks')
 #         convert.delay(conv.pk)
 
 
-@shared_task(bind=True)
-@periodic_task(run_every=timedelta(minutes=15))
-def autocreate_scene_analysis(self):
+@shared_task
+def autocreate_scene_analysis():
     logging.debug('Executing autocreate_scene_analysis task')
+    AUTOCREATE_DURATION = timedelta(minutes=30)
     for stream in Stream.objects.all():
-        running = stream.scene_analysis.objects.filter(status='STARTED')
+        running = stream.scene_analysis.filter(status='STARTED')
         if not running.exists():
             try:
-                max_available = datetime.fromtimestamp(
-                    int(stream.get_provider().get_data()['current_store']['utcEnd']) / 1000)
+                store = stream.get_provider().get_data()['current_store_details']
+                max_available = datetime.fromtimestamp(int(store['utcEnd']) / 1000, tz=timezone.utc)
+                min_available = datetime.fromtimestamp(int(store['utcStart']) / 1000, tz=timezone.utc)
             except:
-                msg = 'Could not retrieve current_store data from stream provider details'
-                logging.error(msg)
-                return self.update_state(state='FAILURE', meta={'message': msg })
-            recent = stream.scene_analysis.objects.filter(start__gte=max_available - F('duration'))
-            if recent.exists():
-                logging.info('A recent conversion already exists for the current store max time, looking back...')
-            else:
-               loggin.info('No recent conversion found, requesting a recent chunk')
-        else:
-            logging.warning('A scene analysis is already running. Maybe we are autocreating them too frequently')
+                logging.error('Could not retrieve current_store data from stream provider details')
+                return
 
+            previous_analysis = stream.scene_analysis.all().order_by('-end').first()
+            if previous_analysis:
+                logging.debug('Previous SceneAnalysis fount: {}'.format(previous_analysis))
+                start = previous_analysis.end
+            else:
+                logging.debug('Previous SceneAnalysis not found, creating one')
+                start = min_available.replace(second=0, microsecond=0) + timedelta(minutes=1)
+
+            end = start + AUTOCREATE_DURATION
+            if start >= min_available and end <= max_available:
+                logging.debug('Autocreating SceneAnalysis')
+                scene_analysis = SceneAnalysis.objects.create(stream=stream, start=start, end=end, status='QUEUED')
+                analyze_scenes.delay(scene_analysis.pk)
+            else:
+                logging.info('Autocreate duration falls outside available range, skippong SceneAnalysis cretion')
 
 
 @shared_task
-@periodic_task(run_every=timedelta(minutes=1))
 def dispatch_scene_analysis():
+    """Dispatcher task meant for celery beat to dsiaptch SceneAnalysis workables"""
     logging.debug('Executing dispatch_scene_analysis task')
-    pending = SceneAnalysis.objects.filter(status="PENDING")
-    for scene_analysis in pending:
+    for scene_analysis in SceneAnalysis.objects.filter(status="PENDING"):
         scene_analysis.set_status('QUEUED')
         analyze_scenes.delay(scene_analysis.pk)
+
+
+@shared_task
+def dispatch_conversions():
+    logging.debug('Executing dispatch_conversions task')
+    for conversion in Conversion.objects.filter(status='PENDING'):
+        conv.set_status('QUEUED')
+        convert.delay(conversion.pk)
 
 
 @shared_task
@@ -80,7 +88,8 @@ def analyze_scenes(scene_analysis_pk):
     input_url = join(
         metadata['wseStreamingUrl'],
         metadata['wseApplication'],
-        'smil:{}.smil'.format(metadata['wseStream']),
+        # 'smil:{}.smil'.format(metadata['wseStream']),
+        '{}_360p'.format(metadata['wseStream']),
         'playlist.m3u8'
         ) + '?DVR&wowzadvrplayliststart={}&wowzadvrplaylistduration={}'.format(
                 scene_analysis.start.strftime('%Y%m%d%H%M%S'),
