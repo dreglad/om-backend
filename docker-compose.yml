@@ -72,5 +72,20 @@ services:
       - redis
       - cache
 
+  # Celery beat scheduler
+  beat:
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    command: ./run_beat.sh
+    volumes:
+      - .:/app
+      - media:/mnt/media
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+      - cache
+
 volumes:
   media:

@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import os
 
+from celery.schedules import crontab, schedule
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=b)=e41e+e^@=@72ewnm(ec0%q#&eb775_+sl%mvb#gsb+m+9('
+SECRET_KEY = '=b)=e41e+e^@=@72e3nm(e50%q#&eb775_+sl%mvb#gsb+m+9('
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,14 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
-    'django_celery_beat',
+    'django_admin_json_editor',
+    # 'django_celery_beat',
     'django_celery_results',
+    'django_filters',
     'cacheback',
     'corsheaders',
-    # 'django_celery_results',
     'rest_framework',
-    'django_filters',
-    'django_admin_json_editor',
     'rest_framework_filters',
 
     'dvr',
@@ -63,9 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 CORS_ORIGIN_ALLOW_ALL = True
-
 
 REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
@@ -78,7 +78,24 @@ REST_FRAMEWORK = {
     ),
 }
 
-CELERY_RESULT_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'amqp://user:pass@rabbitmq//'
+CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 30
+CELERY_RESULT_BACKEND = 'django_celery_results.backends.cache.CacheBackend'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Mexico_City'
+CELERY_TRACK_STARTED = True
+CELERY_BEAT_SCHEDULE = {
+    'autocreate-scene-analysis': {
+        'task': 'dvr.tasks.autocreate_scene_analysis',
+        'schedule': schedule(run_every=60.0)
+    },
+    # 'dispatch-conversions': {
+    #     'task': 'dvr.tasks.dispatch_conversions',
+    #     'schedule': schedule(run_every=5.0)
+    # },
+}
 
 ROOT_URLCONF = 'live2vod.urls'
 
@@ -99,17 +116,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'live2vod.wsgi.application'
-
-
-CELERY_BROKER_URL = 'amqp://user:pass@rabbitmq//'
-CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 30
-
-#: Only add pickle to this list if your broker is secured
-#: from unwanted access (see userguide/security.html)
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
-# CELERY_TASK_SERIALIZER = 'json'
-
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -156,6 +162,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
