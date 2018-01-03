@@ -35,20 +35,36 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
 class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='scene_analysis', on_delete=models.CASCADE)
-    start = models.DateTimeField(_('start'))
-    end = models.DateTimeField(_('end'))
+    start = models.DateTimeField(_('start'), db_index=True)
+    end = models.DateTimeField(_('end'), db_index=True)
 
     @property
     def duration(self):
         return self.end - self.start
+
+    def __str__(self):
+        return 'Scene analysis #{} of {} from {} to {}'.format(
+            self.pk, self.stream, self.start, self.end)
+
+    class Meta:
+        ordering = ['-created_at', '-end', '-start']
+        verbose_name = _('scene analysis')
+        verbose_name_plural = _('scene analysis')
 
 
 class SceneChange(EphemeralMixin, models.Model):
     scene_analysis = models.ForeignKey(
         'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes', on_delete=models.CASCADE)
     time = models.DateTimeField(_('time', ))
-    value = models.FloatField(_('value'), null=True, blank=True)
+    value = models.FloatField(_('value'), db_index=True, null=True, blank=True)
 
+    def __str__(self):
+        return 'Scene change of {} at {} wth value {}'.format(self.scene_analysis, self.time, self.value)
+
+    class Meta:
+        ordering = ['-time', 'created_at']
+        verbose_name = _('scene change')
+        verbose_name_plural = _('scene changes')
 
 # class Store(EphemeralMixin, models.Model):
 #     stream = models.ForeignKey('Stream', verbose_name=_('stream'), related_name='stores', )
@@ -76,10 +92,13 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
             from .tasks import convert
             convert.delay(self.pk)
 
-
     @property
     def end(self):
         return self.start + self.duration
+
+    def __str__(self):
+        return 'Conversion #{} of {} from {} to {}'.format(
+            self.pk, self.stream, self.start, self.end)
 
     class Meta:
         ordering = ('-pk',)
@@ -93,13 +112,16 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     """
     conversions = models.ManyToManyField('Conversion', verbose_name=_('conversions'), blank=True)
 
+    def __str(self):
+        return 'Video #{}',forat(self.pk)
 
     class Meta:
+        ordering = ['-created_at']
         verbose_name = _('video')
         verbose_name_plural = _('videos')
 
 
-class DistributionChannel(NameableMixin, EphemeralMixin, MetadatableMixin, ConfigurableMixin, models.Model):
+class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, ConfigurableMixin, models.Model):
     """
     Distribution channel model
     """
@@ -128,6 +150,7 @@ class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, Confi
         'DistributionChannel', verbose_name=_('channel'), related_name='profiles', on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['channel', '-created_at']
         verbose_name = _('distribution profile')
         verbose_name_plural = _('distribution profiles')
 
@@ -143,5 +166,6 @@ class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, model
                                 related_name='attempts')
 
     class Meta:
+        ordering = ['-created_at']
         verbose_name = _('distribution attempt')
         verbose_name_plural = _('distribution attempts')
