@@ -21,7 +21,8 @@ router.register(r'distribution_channels', DistributionChannelViewSet)
 router.register(r'distribution_profiles', DistributionProfileViewSet)
 router.register(r'streams', StreamViewSet)
 router.register(r'scene_changes', SceneChangeViewSet)
-router.register(r'videos', VideoViewSet)
+router.register(r'scene_analysis', SceneAnalysisViewSet)
+# router.register(r'videos', VideoViewSet)
 
 # Non-model ViewSets
 # router.register(r'stream_store', StreamStoreViewSet)

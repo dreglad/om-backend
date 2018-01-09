@@ -58,3 +58,9 @@ class SceneChangeSerializer(serializers.HyperlinkedModelSerializer):
         model = SceneChange
         fields = ('id', 'time', 'value')
 
+
+class SceneAnalysisSerializer(serializers.HyperlinkedModelSerializer):
+    # stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
+    class Meta:
+        model = SceneAnalysis
+        fields = ('id', 'stream', 'start', 'end', 'status', 'progress', 'created_at')

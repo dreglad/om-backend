@@ -87,3 +87,13 @@ class SceneChangeViewSet(viewsets.ModelViewSet):
     queryset = SceneChange.objects.all()
     serializer_class = SceneChangeSerializer
     filter_class = SceneChangeFilter
+
+
+class SceneAnalysisViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = SceneAnalysis.objects.all()
+    serializer_class = SceneAnalysisSerializer
+    filter_fields = ('stream',)
+
