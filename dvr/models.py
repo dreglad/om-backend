@@ -27,6 +27,9 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
     def provider_data(self):
         return self.get_provider().get_data()
 
+    def __str__(self):
+        return '{} #{}: {}'.format(_('Stream'), self.pk, self.name)
+
     class Meta:
         verbose_name = _('stream')
         verbose_name_plural = _('streams')
@@ -43,8 +46,8 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
         return self.end - self.start
 
     def __str__(self):
-        return 'Scene analysis #{} of {} from {} to {}'.format(
-            self.pk, self.stream, self.start, self.end)
+        return '{} #{} {} {} {} {} {} {}'.format(
+            _('Scene analysis'), self.pk, _('of'), self.stream, _('from'), self.start, _('to'), self.end)
 
     class Meta:
         ordering = ['-created_at', '-end', '-start']
@@ -54,12 +57,13 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
 
 class SceneChange(EphemeralMixin, models.Model):
     scene_analysis = models.ForeignKey(
-        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes', on_delete=models.CASCADE)
+        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes',on_delete=models.CASCADE)
     time = models.DateTimeField(_('time', ))
     value = models.FloatField(_('value'), db_index=True, null=True, blank=True)
 
     def __str__(self):
-        return 'Scene change of {} at {} wth value {}'.format(self.scene_analysis, self.time, self.value)
+        return '{} {} {} {} {} {} {}'.format(
+            _('Scene change'), _('of'), self.scene_analysis, _('at'), self.time, _('with value'), self.value)
 
     class Meta:
         ordering = ['-time', 'created_at']
@@ -97,8 +101,8 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
         return self.start + self.duration
 
     def __str__(self):
-        return 'Conversion #{} of {} from {} to {}'.format(
-            self.pk, self.stream, self.start, self.end)
+        return '{} #{} {} {} {} {} {} {}'.format(
+            _('Conversion'), self.pk, _('of'), self.stream, _('from'), self.start, _('to'), self.end)
 
     class Meta:
         ordering = ('-pk',)

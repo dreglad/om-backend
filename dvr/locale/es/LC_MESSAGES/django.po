@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-03 03:30+0000\n"
+"POT-Creation-Date: 2018-01-03 04:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,114 +94,150 @@ msgstr "Wowza Streaming Engine"
 msgid "provider"
 msgstr "proveedor"
 
-#: dvr/models.py:31 dvr/models.py:37 dvr/models.py:82
+#: dvr/models.py:31
+msgid "Stream"
+msgstr "Transmisión"
+
+#: dvr/models.py:34 dvr/models.py:40 dvr/models.py:86
 msgid "stream"
 msgstr "transmisión"
 
-#: dvr/models.py:32
+#: dvr/models.py:35
 msgid "streams"
 msgstr "transmisiones"
 
-#: dvr/models.py:38 dvr/models.py:85
+#: dvr/models.py:41 dvr/models.py:89
 msgid "start"
 msgstr "inicio"
 
-#: dvr/models.py:39
+#: dvr/models.py:42
 msgid "end"
 msgstr "final"
 
-#: dvr/models.py:51 dvr/models.py:52 dvr/models.py:57
+#: dvr/models.py:50
+msgid "Scene analysis"
+msgstr "Análisis de escena"
+
+#: dvr/models.py:50 dvr/models.py:66 dvr/models.py:105
+msgid "of"
+msgstr "de"
+
+#: dvr/models.py:50 dvr/models.py:105
+msgid "from"
+msgstr "desde"
+
+#: dvr/models.py:50 dvr/models.py:105
+msgid "to"
+msgstr "hasta"
+
+#: dvr/models.py:54 dvr/models.py:55 dvr/models.py:60
 msgid "scene analysis"
 msgstr "análisis de escena"
 
-#: dvr/models.py:58
+#: dvr/models.py:61
 msgid "time"
 msgstr "tiempo"
 
-#: dvr/models.py:59
+#: dvr/models.py:62
 msgid "value"
 msgstr "valor"
 
 #: dvr/models.py:66
+msgid "Scene change"
+msgstr "Cambio de escena"
+
+#: dvr/models.py:66
+msgid "at"
+msgstr "en"
+
+#: dvr/models.py:66
+msgid "with value"
+msgstr "con valor"
+
+#: dvr/models.py:70
 msgid "scene change"
 msgstr "cambio de escena"
 
-#: dvr/models.py:67
+#: dvr/models.py:71
 msgid "scene changes"
 msgstr "cambios de escena"
 
-#: dvr/models.py:84
+#: dvr/models.py:88
 msgid "DVR Store"
 msgstr "Almacén DVR"
 
-#: dvr/models.py:86
+#: dvr/models.py:90
 msgid "duration"
 msgstr "duración"
 
 #: dvr/models.py:105
+msgid "Conversion"
+msgstr "Conversión"
+
+#: dvr/models.py:109
 msgid "conversion"
 msgstr "conversión"
 
-#: dvr/models.py:106 dvr/models.py:113
+#: dvr/models.py:110 dvr/models.py:117
 msgid "conversions"
 msgstr "conversiones"
 
-#: dvr/models.py:120 dvr/models.py:165
+#: dvr/models.py:124 dvr/models.py:169
 msgid "video"
 msgstr "video"
 
-#: dvr/models.py:121
+#: dvr/models.py:125
 msgid "videos"
 msgstr "videos"
 
-#: dvr/models.py:132
+#: dvr/models.py:136
 msgid "Captura-Multimedia"
 msgstr "Captura-Multimedia"
 
-#: dvr/models.py:133 
+#: dvr/models.py:137
 msgid "FTP"
 msgstr "FTP"
 
-#: dvr/models.py:134
+#: dvr/models.py:138
 msgid "YouTube"
 msgstr "YouTube"
 
-#: dvr/models.py:136 dvr/models.py:149
+#: dvr/models.py:140 dvr/models.py:153
 msgid "active"
 msgstr "activo"
 
-#: dvr/models.py:137
+#: dvr/models.py:141
 msgid "type"
 msgstr "tipo"
 
-#: dvr/models.py:141
+#: dvr/models.py:145
 msgid "distribution channel"
 msgstr "canal de distribución"
 
-#: dvr/models.py:142
+#: dvr/models.py:146
 msgid "distribution channels"
 msgstr "canales de distribución"
 
-#: dvr/models.py:151
+#: dvr/models.py:155
 msgid "channel"
 msgstr "canal"
 
-#: dvr/models.py:155
+#: dvr/models.py:159
 msgid "distribution profile"
 msgstr "perfil de distribución"
 
-#: dvr/models.py:156
+#: dvr/models.py:160
 msgid "distribution profiles"
 msgstr "perfiles de distribución"
 
-#: dvr/models.py:166
+#: dvr/models.py:170
 msgid "profile"
 msgstr "perfil"
 
-#: dvr/models.py:171
+#: dvr/models.py:175
 msgid "distribution attempt"
 msgstr "intento de distribución"
 
-#: dvr/models.py:172
+#: dvr/models.py:176
 msgid "distribution attempts"
 msgstr "intentos de distribución"

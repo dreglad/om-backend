@@ -27,7 +27,7 @@ logger = logging.getLogger('tasks')
 @shared_task
 def autocreate_scene_analysis():
     logging.debug('Executing autocreate_scene_analysis task')
-    AUTOCREATE_DURATION = timedelta(minutes=30)
+    AUTOCREATE_DURATION = timedelta(minutes=15)
     for stream in Stream.objects.all():
         running = stream.scene_analysis.filter(status='STARTED')
         if not running.exists():
