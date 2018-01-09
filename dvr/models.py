@@ -9,9 +9,10 @@ from .stream_providers import *
 
 logger = logging.getLogger('default')
 
+
 class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
     """
-    Stream model
+    Stream model.
     """
     PROVIDER_CHOICES = (
         ('WowzaStreamingEngine', _('Wowza Streaming Engine')),
@@ -37,7 +38,7 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
 
 class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
     """
-    Scene Analysis model
+    SceneAnalysis model.
     """
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='scene_analysis', on_delete=models.CASCADE)
@@ -60,7 +61,7 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
 
 class SceneChange(EphemeralMixin, models.Model):
     """
-    Scene Change model
+    SceneChange model.
     """
     scene_analysis = models.ForeignKey(
         'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes',on_delete=models.CASCADE)
@@ -76,16 +77,10 @@ class SceneChange(EphemeralMixin, models.Model):
         verbose_name = _('scene change')
         verbose_name_plural = _('scene changes')
 
-# class Store(EphemeralMixin, models.Model):
-#     stream = models.ForeignKey('Stream', verbose_name=_('stream'), related_name='stores', )
-#     name = models.CharField(_('name'), max_length=128)
-#     start = models.DateTimeField(_('start'))
-#     start = models.DateTimeField(_('end'))
-
 
 class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
     """
-    Conversion model
+    Conversion model.
     """
     stream = models.ForeignKey(
         'Stream', null=True, blank=True, on_delete=models.CASCADE,
@@ -118,7 +113,7 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
 
 class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, models.Model):
     """
-    Video model
+    Video model.
     """
     conversions = models.ManyToManyField('Conversion', verbose_name=_('conversions'), blank=True)
 
@@ -133,7 +128,7 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
 
 class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, ConfigurableMixin, models.Model):
     """
-    Distribution channel model
+    DistributionChannel model.
     """
     MULTIMEDIA = 'multimedia'
     FTP = 'ftp'
@@ -153,7 +148,7 @@ class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, Confi
 
 class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, ConfigurableMixin, models.Model):
     """
-    Distribution profile model
+    DistributionProfile model.
     """
     active = models.BooleanField(_('active'), default=True)
     channel = models.ForeignKey(
@@ -167,7 +162,7 @@ class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, Confi
 
 class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, models.Model):
     """
-    Distribution attemp model
+    DistributionAttempt model.
     """
     video = models.ForeignKey(
         'Video', on_delete=models.CASCADE,

@@ -11,7 +11,7 @@ from .models import *
 
 class ConversionViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    Conversion API endpoint.
     """
     queryset = Conversion.objects.all()
     serializer_class = ConversionSerializer
@@ -20,7 +20,7 @@ class ConversionViewSet(viewsets.ModelViewSet):
 
 class StreamViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    Stream API endpoint.
     """
     queryset = Stream.objects.all()
     serializer_class = StreamListSerializer
@@ -31,12 +31,10 @@ class StreamViewSet(viewsets.ModelViewSet):
         self.serializer_class = self.detail_serializer_class
         return super(StreamViewSet, self).retrieve(request, *args, **kwargs)
 
-    # @detail_route(methods=['get']):
-
 
 class VideoViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    Video API endpoint.
     """
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
@@ -45,7 +43,7 @@ class VideoViewSet(viewsets.ModelViewSet):
 
 class DistributionAttemptViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    DistributionAttempt API endpoint.
     """
     queryset = DistributionAttempt.objects.all()
     serializer_class = DistributionAttemptSerializer
@@ -54,7 +52,7 @@ class DistributionAttemptViewSet(viewsets.ModelViewSet):
 
 class DistributionChannelViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    DistributionChannel API endpoint.
     """
     queryset = DistributionChannel.objects.all()
     serializer_class = DistributionChannelSerializer
@@ -63,7 +61,7 @@ class DistributionChannelViewSet(viewsets.ModelViewSet):
 
 class DistributionProfileViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    DistributionProfile API endpoint.
     """
     queryset = DistributionProfile.objects.all()
     serializer_class = DistributionProfileSerializer
@@ -71,6 +69,9 @@ class DistributionProfileViewSet(viewsets.ModelViewSet):
 
 
 class SceneChangeFilter(filters.FilterSet):
+    """
+    SceneChange API endpoint filter.
+    """
     class Meta:
         model = SceneChange
         fields = {
@@ -82,7 +83,7 @@ class SceneChangeFilter(filters.FilterSet):
 
 class SceneChangeViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    SceneChange API endpoint.
     """
     queryset = SceneChange.objects.all()
     serializer_class = SceneChangeSerializer
@@ -91,7 +92,7 @@ class SceneChangeViewSet(viewsets.ModelViewSet):
 
 class SceneAnalysisViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    SceneAnalysis API endpoint.
     """
     queryset = SceneAnalysis.objects.all()
     serializer_class = SceneAnalysisSerializer

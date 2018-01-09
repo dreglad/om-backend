@@ -7,6 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class WorkableMixin(models.Model):
+    """
+    Workable mixin. Allows a model to have an asynchronous job attached,
+    as well as an status, progress and a result.
+    """
     PENDING = 'PENDING'
     QUEUED = 'QUEUED'
     STARTED = 'STARTED'
@@ -34,6 +38,9 @@ class WorkableMixin(models.Model):
 
 
 class EphemeralMixin(models.Model):
+    """
+    EphemeralMixin. Allows a model to have an associated creation and modification datetime and user
+    """
     created_at = models.DateTimeField(_('created at'), default=timezone.now, editable=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('created by'), blank=True, null=True,
@@ -48,12 +55,19 @@ class EphemeralMixin(models.Model):
 
 
 class MetadatableMixin(models.Model):
+    """
+    MetadatableMixin. Allows a model to have a user-specified key/value metadata
+    """
     metadata = HStoreField(_('metadata'), null=True, blank=True)
 
     class Meta:
         abstract = True
 
+
 class ConfigurableMixin(models.Model):
+    """
+    COnfigurableMixin. Allows a model to have user-specified key/value configuration properties
+    """
     configuration = HStoreField(_('configuration'), null=True, blank=True)
 
     class Meta:
@@ -61,6 +75,9 @@ class ConfigurableMixin(models.Model):
 
 
 class MediaContentMixin(models.Model):
+    """
+    MediaContentMixin. Allow a model to have a file associated to it through a storage backend.
+    """
     file = models.FileField(_('file'), blank=True, null=True)
 
     class Meta:
@@ -69,6 +86,9 @@ class MediaContentMixin(models.Model):
 
 
 class NameableMixin(models.Model):
+    """
+    NameableMixin. Allows a model to have a name and an associated unique slug.
+    """
     name = models.CharField(_('name'), max_length=255)
     slug = models.SlugField(_('slug'), max_length=255, blank=True, default='', unique=True)
 

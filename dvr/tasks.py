@@ -18,6 +18,7 @@ logger = logging.getLogger('tasks')
 
 @shared_task
 def autocreate_scene_analysis():
+    """Auto-create scene analysis objects and dispatch their associated background jobs"""
     logging.debug('Executing autocreate_scene_analysis task')
     AUTOCREATE_DURATION = timedelta(minutes=15)
     for stream in Stream.objects.all():
@@ -67,6 +68,7 @@ def dispatch_conversions():
 
 @shared_task
 def analyze_scenes(scene_analysis_pk):
+    """Perform scene change analysis with FFmpeg"""
     logging.debug('Executing analyze_scenes task')
     try:
         scene_analysis = SceneAnalysis.objects.get(pk=scene_analysis_pk)
@@ -115,6 +117,7 @@ def analyze_scenes(scene_analysis_pk):
 
 @shared_task
 def convert(conversion_pk):
+    """Perform live-to-VOD conversion through the streaming provider"""
     try:
         conv = Conversion.objects.get(pk=conversion_pk)
     except Conversion.DoesNotExist:
