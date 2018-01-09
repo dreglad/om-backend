@@ -16,14 +16,6 @@ from .models import Conversion, SceneAnalysis, SceneChange, Stream
 logger = logging.getLogger('tasks')
 
 
-# @periodic_task
-# def dispatch_video():
-#     # Pending convs
-#     for vid in Video.objects.filter('PENDING'):
-#         vid.set_status('QUEUED')
-#         convert.delay(conv.pk)
-
-
 @shared_task
 def autocreate_scene_analysis():
     logging.debug('Executing autocreate_scene_analysis task')
@@ -32,7 +24,7 @@ def autocreate_scene_analysis():
         running = stream.scene_analysis.filter(status='STARTED')
         if not running.exists():
             try:
-                store = stream.get_provider().get_data()['current_store_details']
+                store = stream.provider_data['current_store_details']
                 max_available = datetime.fromtimestamp(int(store['utcEnd']) / 1000, tz=timezone.utc)
                 min_available = datetime.fromtimestamp(int(store['utcStart']) / 1000, tz=timezone.utc)
             except:

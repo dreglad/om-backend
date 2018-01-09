@@ -8,6 +8,7 @@ django-celery-results
 djangorestframework
 djangorestframework-filters
 django-filter
+django-rest-swagger
 markdown
 Pillow
 PyYAML

@@ -48,8 +48,8 @@ class DistributionAttemptSerializer(serializers.HyperlinkedModelSerializer):
 
 class DistributionProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = DistributionAttempt
-        fields = ('channel', 'created_at', 'status')
+        model = DistributionProfile
+        fields = ('channel', 'created_at')
 
 
 class SceneChangeSerializer(serializers.HyperlinkedModelSerializer):

@@ -36,6 +36,9 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
 
 
 class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
+    """
+    Scene Analysis model
+    """
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='scene_analysis', on_delete=models.CASCADE)
     start = models.DateTimeField(_('start'), db_index=True)
@@ -56,6 +59,9 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
 
 
 class SceneChange(EphemeralMixin, models.Model):
+    """
+    Scene Change model
+    """
     scene_analysis = models.ForeignKey(
         'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes',on_delete=models.CASCADE)
     time = models.DateTimeField(_('time', ))
