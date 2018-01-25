@@ -60,10 +60,12 @@ def dispatch_scene_analysis():
 
 @shared_task
 def dispatch_conversions():
+    print('executing ')
     logging.debug('Executing dispatch_conversions task')
-    for conversion in Conversion.objects.filter(status='PENDING'):
-        conv.set_status('QUEUED')
-        convert.delay(conversion.pk)
+    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
+        conversion.set_status('QUEUED')
+        convert.apply_async([conversion.pk], queue='conversions')
+        sleep(0.5)
 
 
 @shared_task
@@ -124,24 +126,28 @@ def convert(conversion_pk):
         logger.warning('No Conversion object found: {}'.format(conversion_pk))
         return
 
-    conv.set_status(Conversion.STARTED, progress=0)
+    conv.set_status('STARTED', progress=0)
 
     provider = conv.stream.get_provider()
     result = provider.request_conversion(conv)
 
     if not result.get('success'):
-        conv.set_status(Conversion.FAILURE, result=result.get('message'))
+        if result.get('message') and 'conversion already in progress' in result['message']:
+            conv.set_status('PENDING', result=result)
+        else:
+            conv.set_status('FAILURE', result=result)
         return False
 
     while True:
         status = provider.query_conversion(result.get('message'), conv)
         if not status:
             # error
-            conv.set_status('FAILURE')
+            conv.set_status('FAILURE', result=result)
             break
         code = status.pop('status')
         conv.set_status(code, **status)
         if code in ['FAILURE', 'SUCCESS']:
+            sleep(5)
             break
         else:
-            logger.debug('Sleeping')
+            sleep(1)

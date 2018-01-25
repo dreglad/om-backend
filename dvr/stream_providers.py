@@ -22,7 +22,7 @@ logger = logging.getLogger('default')
 class StreamProvider(object):
 
     def __init__(self, obj, metadata, *args, **kwargs):
-        logger.debug('StreamProvider __init__ for obj: {}'.format(obj))
+        #logger.debug('StreamProvider __init__ for obj: {}'.format(obj))
         self.obj = obj
         self.metadata = metadata
         self.cache = caches['stream_providers']
@@ -31,7 +31,7 @@ class StreamProvider(object):
         return '{}-{}-{}'.format(self.__class__.__name__, self.obj.__class__.__name__, key)
 
     def get_or_set_cache(self, key, value, timeout=None):
-        logger.debug('get_or_set_cache with key: {}'.format(key))
+        # logger.debug('get_or_set_cache with key: {}'.format(key))
         return self.cache.get_or_set(self._get_cache_key(key), value, timeout)
 
     def delete_cache(self, key):

@@ -90,12 +90,12 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
     start = models.DateTimeField(_('start'))
     duration = models.DurationField(_('duration'))
 
-    def save(self, *args, **kwargs):
-        was_new = not self.pk and self.status == Conversion.PENDING
-        super(Conversion, self).save(*args, **kwargs)
-        if was_new:
-            from .tasks import convert
-            convert.delay(self.pk)
+    # def save(self, *args, **kwargs):
+    #     was_new = not self.pk and self.status == Conversion.PENDING
+    #     super(Conversion, self).save(*args, **kwargs)
+    #     if was_new:
+    #         from .tasks import convert
+    #         convert.delay(self.pk)
 
     @property
     def end(self):

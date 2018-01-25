@@ -72,6 +72,20 @@ services:
       - redis
       - cache
 
+  conversion_worker:
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    command: ./run_conversion_worker.sh
+    volumes:
+      - .:/app
+      - media:/mnt/media
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+      - cache
+
   # Celery beat scheduler
   beat:
     build:

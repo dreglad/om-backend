@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
-    'debug_toolbar',
+    # 'debug_toolbar',
     'rest_framework_swagger',
     'django_admin_json_editor',
     # 'django_celery_beat',
@@ -92,16 +92,19 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Mexico_City'
 CELERY_TRACK_STARTED = True
+CELERY_CREATE_MISSING_QUEUES = True
+CELERY_DEFAULT_QUEUE = 'celery'
 CELERY_BEAT_SCHEDULE = {
     'autocreate-scene-analysis': {
         'task': 'dvr.tasks.autocreate_scene_analysis',
         'schedule': schedule(run_every=60.0)
     },
-    # 'dispatch-conversions': {
-    #     'task': 'dvr.tasks.dispatch_conversions',
-    #     'schedule': schedule(run_every=5.0)
-    # },
+    'dispatch-conversions': {
+        'task': 'dvr.tasks.dispatch_conversions',
+        'schedule': schedule(run_every=5.0)
+    },
 }
+
 
 ROOT_URLCONF = 'live2vod.urls'
 
