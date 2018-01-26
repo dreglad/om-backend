@@ -31,7 +31,10 @@ class StreamDetailSerializer(serializers.HyperlinkedModelSerializer):
 class VideoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Video
-        fields = ('id', 'status', 'conversions', 'metadata')
+        fields = (
+            'id', 'stream', 'sources', 'timestamp_start', 'timestamp_end', 'file', 'images', 'duration',
+            'status', 'progress', 'metadata', 'created_at', 'result'
+        )
 
 
 class DistributionChannelSerializer(serializers.HyperlinkedModelSerializer):

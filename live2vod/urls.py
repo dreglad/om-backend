@@ -22,13 +22,14 @@ router.register(r'distribution_profiles', DistributionProfileViewSet)
 router.register(r'streams', StreamViewSet)
 router.register(r'scene_changes', SceneChangeViewSet)
 router.register(r'scene_analysis', SceneAnalysisViewSet)
+router.register(r'videos', VideoViewSet)
 # router.register(r'videos', VideoViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('', get_swagger_view(title='DVR REST API Documentation'))
+    path('api-docs/', get_swagger_view(title='DVR REST API Documentation'))
 ]
 
 if settings.DEBUG:

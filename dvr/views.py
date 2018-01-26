@@ -38,7 +38,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     """
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
-    filter_fields = ('conversions',)
+    filter_fields = ('stream',)
 
 
 class DistributionAttemptViewSet(viewsets.ModelViewSet):

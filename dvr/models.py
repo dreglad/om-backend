@@ -1,5 +1,7 @@
 import logging
 
+from django.conf import settings
+from django.contrib.postgres.fields import ArrayField, HStoreField
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -115,10 +117,20 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     """
     Video model.
     """
-    conversions = models.ManyToManyField('Conversion', verbose_name=_('conversions'), blank=True)
+    stream = models.ForeignKey(
+        'Stream', verbose_name=_('stream'), related_name='videos', on_delete=models.CASCADE)
+    sources = ArrayField(models.URLField(), verbose_name=_('sources'))
+    timestamp_start = models.DateTimeField(_('timestamp start'), null=True, blank=True)
+    timestamp_end = models.DateTimeField(_('timestamp end'), null=True, blank=True)
+    file = models.FileField(_('video file'), blank=True, upload_to="videos/")
+    images = ArrayField(models.FileField(upload_to='images'), verbose_name=_('thumbnails'), default=[], blank=True)
+    duration = models.DurationField(_('duration'), null=True, blank=True)
 
-    def __str(self):
-        return 'Video #{}',forat(self.pk)
+    def get_source_filename(self, index=None):
+        return '{}{}.mp4'.format(self.pk, '_{}'.format(index) if index else '')
+
+    def __str__(self):
+        return 'Video #{}',format(self.pk)
 
     class Meta:
         ordering = ['-created_at']
