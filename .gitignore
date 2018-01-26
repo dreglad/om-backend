@@ -7,3 +7,4 @@ static/
 *.sublime-*
 __pycache__
 MANIFEST
+docker-compose.override.yml
