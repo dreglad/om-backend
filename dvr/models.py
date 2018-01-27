@@ -126,6 +126,8 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     file = models.FileField(_('video file'), blank=True, upload_to="videos/")
     images = ArrayField(models.FileField(upload_to='images'), verbose_name=_('thumbnails'), default=[], blank=True)
     duration = models.DurationField(_('duration'), null=True, blank=True)
+    width = models.PositiveSmallIntegerField(_('width'), blank=True, null=True)
+    height = models.PositiveSmallIntegerField(_('height'), blank=True, null=True)
 
     def get_source_filename(self, index=None, absolute=False):
         filename = 'videos/{}/{}.mp4'.format(self.pk, 'p{}'.format(index) if index else 'source')

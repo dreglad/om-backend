@@ -16,6 +16,7 @@ from celery.decorators import periodic_task
 import pexpect
 
 from .models import Conversion, SceneAnalysis, SceneChange, Stream, Video
+from .video_utils import get_video_stream_info
 
 logger = logging.getLogger('tasks')
 
@@ -120,7 +121,16 @@ def process_video(video_pk):
                     print(progress_time)
             thread.close()
     # Finished
-    video.set_status('SUCCESS', progress=1, file=video.get_source_filename())
+    vinfo = get_video_stream_info(video.get_source_filename(absolute=True))
+    if vinfo and vinfo.get('duration'):
+        video.set_status(
+            'SUCCESS', progress=1,
+            file=video.get_source_filename(),
+            duration=timedelta(seconds=float(vinfo['duration'])),
+            width=vinfo['width'], height=vinfo['height']
+            )
+    else:
+        video.set_status('FAILED', result=vinfo or None)
 
 
 @shared_task
