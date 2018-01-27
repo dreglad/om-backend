@@ -28,7 +28,7 @@ class StreamDetailSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'name', 'slug', 'provider', 'metadata', 'provider_data')
 
 
-class VideoSerializer(serializers.HyperlinkedModelSerializer):
+class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = (
