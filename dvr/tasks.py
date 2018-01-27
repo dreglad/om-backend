@@ -1,17 +1,21 @@
 from datetime import datetime, timedelta
 import logging
+import os
 from posixpath import join
 from subprocess import Popen, PIPE, call, check_output
 import re
+import tempfile
 from time import sleep
 from urllib.parse import urljoin
 
+from django.conf import settings
 from django.db.models import F
 from django.utils import timezone
-from celery import shared_task, task
+from celery import shared_task, task, group
 from celery.decorators import periodic_task
+import pexpect
 
-from .models import Conversion, SceneAnalysis, SceneChange, Stream
+from .models import Conversion, SceneAnalysis, SceneChange, Stream, Video
 
 logger = logging.getLogger('tasks')
 
@@ -60,13 +64,103 @@ def dispatch_scene_analysis():
 
 @shared_task
 def dispatch_conversions():
-    print('executing ')
-    logging.debug('Executing dispatch_conversions task')
-    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
+   for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
         conversion.set_status('QUEUED')
         convert.apply_async([conversion.pk], queue='conversions')
         sleep(0.5)
 
+
+@shared_task
+def dispatch_videos():
+    for video in Video.objects.filter(status='PENDING').order_by('id'):
+        video.set_status('QUEUED')
+        process_video.apply_async([video.pk])
+        sleep(0.5)
+
+
+@shared_task
+def process_video(video_pk):
+    video = Video.objects.get(pk=video_pk)
+
+    video.set_status('STARTED', progress=0, result={'downloaded': '0'})
+
+    if len(video.sources) == 1:
+        # no need to join videos, download inmediately
+        download_video(video.sources[0], video.get_source_filename(absolute=True), video_pk)
+    else:
+        # start and wait for all download jobs
+        for index, url in enumerate(video.sources, start=1):
+            download_video(url, video.get_source_filename(index, absolute=True), video_pk)
+
+        with tempfile.NamedTemporaryFile('w', delete=False) as temp:
+            temp.write('\n'.join([
+                'file "{}"'.format(video.get_source_filename(index, absolute=True))
+                for index in range(1, len(video.sources)+1)]))
+            temp.flush()
+            cmd = 'ffmpeg -f concat -safe 0 -i {} -c copy -movflags +faststart {}'.format(
+                temp.name, video.get_source_filename(absolute=True))
+            print('Executing command: ', cmd)
+            thread = pexpect.spawn(cmd)
+            cpl = thread.compile_pattern_list([
+                pexpect.EOF,
+                'Duration: (\d\d:\d\d:\d\d\.?\d*)',
+                'time=(\d\d:\d\d:\d\d\.?\d*)'
+            ])
+            prev_progress, duration, progress = None, 0, 0
+            while True:
+                i = thread.expect_list(cpl, timeout=None)
+                if i == 0: # EOF
+                    print('join finished')
+                    break
+                elif i == 1:
+                    duration = thread.match.group(1)
+                    print('duration', duration)
+                elif i == 2:
+                    progress_time = thread.match.group(1)
+                    print(progress_time)
+            thread.close()
+    # Finished
+    video.set_status('SUCCESS', progress=1, file=video.get_source_filename())
+
+
+@shared_task
+def download_video(url, filename, video_pk=None):
+    if video_pk: video = Video.objects.get(pk=video_pk)
+
+    if not os.path.isdir(os.path.dirname(filename)):
+        os.makedirs(os.path.dirname(filename))
+
+    cmd = 'ffmpeg -y -i "{}" -c copy {}'.format(url, filename)
+    print('Executing command: ', cmd)
+    thread = pexpect.spawn(cmd)
+    cpl = thread.compile_pattern_list([
+        pexpect.EOF,
+        'Duration: (\d\d:\d\d:\d\d\.?\d*)',
+        'time=(\d\d:\d\d:\d\d\.?\d*)'
+        ])
+    prev_progress, duration, progress = None, 0, 0
+    while True:
+        i = thread.expect_list(cpl, timeout=None)
+        if i == 0: # EOF
+            print('subprocess finished')
+            return
+        elif i == 1:
+            duration = thread.match.group(1)
+            print('duration', duration)
+        elif i == 2:
+            progress_time = thread.match.group(1)
+            print(progress_time)
+        if video_pk and duration and (progress != prev_progress):
+            pass
+            #video.set_status('STARTED', pregress=xxxxx)
+    thread.close()
+
+
+# @shared_task(timeout=60)
+# def join_conversions(conv_pks):
+#     convs = Conversion.objects.filter(pk__in=conv_pks)
+
+#     for pk in conv_pks:
 
 @shared_task
 def analyze_scenes(scene_analysis_pk):

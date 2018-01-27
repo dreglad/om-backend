@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, HStoreField
@@ -31,7 +32,7 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
         return self.get_provider().get_data()
 
     def __str__(self):
-        return '{} #{}: {}'.format(_('Stream'), self.pk, self.name)
+        return self.name or '{} #{}'.format(_('Stream'), self.pk)
 
     class Meta:
         verbose_name = _('stream')
@@ -120,17 +121,18 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='videos', on_delete=models.CASCADE)
     sources = ArrayField(models.URLField(), verbose_name=_('sources'))
-    timestamp_start = models.DateTimeField(_('timestamp start'), null=True, blank=True)
-    timestamp_end = models.DateTimeField(_('timestamp end'), null=True, blank=True)
+    start = models.DateTimeField(_('start'), db_index=True, null=True, blank=True)
+    end = models.DateTimeField(_('end'), db_index=True, null=True, blank=True)
     file = models.FileField(_('video file'), blank=True, upload_to="videos/")
     images = ArrayField(models.FileField(upload_to='images'), verbose_name=_('thumbnails'), default=[], blank=True)
     duration = models.DurationField(_('duration'), null=True, blank=True)
 
-    def get_source_filename(self, index=None):
-        return '{}{}.mp4'.format(self.pk, '_{}'.format(index) if index else '')
+    def get_source_filename(self, index=None, absolute=False):
+        filename = 'videos/{}/{}.mp4'.format(self.pk, 'p{}'.format(index) if index else 'source')
+        return os.path.join(settings.MEDIA_ROOT, filename) if absolute else filename
 
     def __str__(self):
-        return 'Video #{}',format(self.pk)
+        return 'Video #{}'.format(self.pk)
 
     class Meta:
         ordering = ['-created_at']

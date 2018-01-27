@@ -32,7 +32,7 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Video
         fields = (
-            'id', 'stream', 'sources', 'timestamp_start', 'timestamp_end', 'file', 'images', 'duration',
+            'id', 'stream', 'sources', 'start', 'end', 'file', 'images', 'duration',
             'status', 'progress', 'metadata', 'created_at', 'result'
         )
 

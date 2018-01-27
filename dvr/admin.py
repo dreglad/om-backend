@@ -53,7 +53,8 @@ class ConversionAdmin(BaseAdmin):
 
 @admin.register(Video)
 class VideoAdmin(BaseAdmin):
-    pass
+    list_display = ('id', 'stream', 'sources', 'created_at', 'status')
+    list_filter = ('stream',)
 
 
 @admin.register(DistributionChannel)
