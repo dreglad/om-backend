@@ -13,6 +13,7 @@ from django.db.models import F
 from django.utils import timezone
 from celery import shared_task, task, group
 from celery.decorators import periodic_task
+from celery.result import allow_join_result
 import pexpect
 
 from .models import Conversion, SceneAnalysis, SceneChange, Stream, Video
@@ -86,39 +87,35 @@ def process_video(video_pk):
     video.set_status('STARTED', progress=0, result={'downloaded': '0'})
 
     # start and wait for download job(s)
+    jobs = []
     for index, url in enumerate(video.sources, start=1):
         print('trying with ', url)
-        download_video_youtubedl(url, video.get_source_filename(index, absolute=True), video_pk)
+        jobs.append(download_video_youtubedl.s(url, video.get_source_filename(index, absolute=True), video_pk))
 
-    inputs = '|'.join([
-        video.get_source_filename(index, absolute=True)
-        for index in range(1, len(video.sources) + 1)
-        ])
-    cmd = 'ffmpeg -i "concat:{}" -c copy -movflags +faststart {}'.format(
-        inputs, video.get_source_filename(absolute=True))
-    print('Executing command: ', cmd)
-    thread = pexpect.spawn(cmd)
-    cpl = thread.compile_pattern_list([
-        pexpect.EOF,
-        'Duration: (\d\d:\d\d:\d\d\.?\d*)',
-        'time=(\d\d:\d\d:\d\d\.?\d*)'
-    ])
-    prev_progress, duration, progress = None, 0, 0
-    while True:
-        i = thread.expect_list(cpl, timeout=None)
-        if i == 0: # EOF
-            print('join finished')
-            break
-        elif i == 1:
-            duration = thread.match.group(1)
-            print('duration', duration)
-        elif i == 2:
-            progress_time = thread.match.group(1)
-            print(progress_time)
-    thread.close()
+    with allow_join_result():
+        group(jobs).apply_async().join()
+
+    parts = [video.get_source_filename(index, absolute=True)
+             for index in range(1, len(video.sources) + 1)]
+
+    print('Parts are: ', parts)
+
+    for part in parts:
+        print('Demuxing to mpegts')
+        pexpect.spawn(
+            'ffmpeg -i {0} -c copy -f mpegts {0}.ts'.format(part)
+            ).wait()
+
+    source_filename = video.get_source_filename(absolute=True)
+
+    print('About to join: ', source_filename)
+    cmd = 'ffmpeg -i "concat:{}" -c copy -f mp4 -movflags +faststart {}'.format(
+        '|'.join(map(lambda p: '{}.ts'.format(p), parts)), source_filename)
+    print('Concat to mp4 command: ', cmd)
+    pexpect.spawn(cmd).wait()
 
     # Finished
-    vinfo = get_video_stream_info(video.get_source_filename(absolute=True))
+    vinfo = get_video_stream_info(source_filename)
     if vinfo and vinfo.get('duration'):
         video.set_status(
             'SUCCESS', progress=1,
@@ -149,7 +146,7 @@ def download_video_youtubedl(url, filename, video_pk=None):
     ydl_opts = {
         'format': 'bestaudio/best',
         'logger': logger,
-        'hls_use_mpegts': True,
+        # 'hls_use_mpegts': True,
         'hls_prefer_native': True,
         'outtmpl': filename,
         'progress_hooks': [youtubedl_progress],
