@@ -93,33 +93,32 @@ def process_video(video_pk):
         for index, url in enumerate(video.sources, start=1):
             download_video(url, video.get_source_filename(index, absolute=True), video_pk)
 
-        with tempfile.NamedTemporaryFile('w', delete=False) as temp:
-            temp.write('\n'.join([
-                'file "{}"'.format(video.get_source_filename(index, absolute=True))
-                for index in range(1, len(video.sources)+1)]))
-            temp.flush()
-            cmd = 'ffmpeg -f concat -safe 0 -i {} -c copy -movflags +faststart {}'.format(
-                temp.name, video.get_source_filename(absolute=True))
-            print('Executing command: ', cmd)
-            thread = pexpect.spawn(cmd)
-            cpl = thread.compile_pattern_list([
-                pexpect.EOF,
-                'Duration: (\d\d:\d\d:\d\d\.?\d*)',
-                'time=(\d\d:\d\d:\d\d\.?\d*)'
+        inputs = '|'.join([
+            video.get_source_filename(index, absolute=True)
+            for index in range(1, len(video.sources) + 1)
             ])
-            prev_progress, duration, progress = None, 0, 0
-            while True:
-                i = thread.expect_list(cpl, timeout=None)
-                if i == 0: # EOF
-                    print('join finished')
-                    break
-                elif i == 1:
-                    duration = thread.match.group(1)
-                    print('duration', duration)
-                elif i == 2:
-                    progress_time = thread.match.group(1)
-                    print(progress_time)
-            thread.close()
+        cmd = 'ffmpeg -i "concat:{}" -c copy -movflags +faststart {}'.format(
+            inputs, video.get_source_filename(absolute=True))
+        print('Executing command: ', cmd)
+        thread = pexpect.spawn(cmd)
+        cpl = thread.compile_pattern_list([
+            pexpect.EOF,
+            'Duration: (\d\d:\d\d:\d\d\.?\d*)',
+            'time=(\d\d:\d\d:\d\d\.?\d*)'
+        ])
+        prev_progress, duration, progress = None, 0, 0
+        while True:
+            i = thread.expect_list(cpl, timeout=None)
+            if i == 0: # EOF
+                print('join finished')
+                break
+            elif i == 1:
+                duration = thread.match.group(1)
+                print('duration', duration)
+            elif i == 2:
+                progress_time = thread.match.group(1)
+                print(progress_time)
+        thread.close()
     # Finished
     vinfo = get_video_stream_info(video.get_source_filename(absolute=True))
     if vinfo and vinfo.get('duration'):
@@ -130,7 +129,7 @@ def process_video(video_pk):
             width=vinfo['width'], height=vinfo['height']
             )
     else:
-        video.set_status('FAILED', result=vinfo or None)
+        video.set_status('FAILURE', result=vinfo or None)
 
 
 @shared_task

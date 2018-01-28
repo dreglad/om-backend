@@ -130,7 +130,8 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     height = models.PositiveSmallIntegerField(_('height'), blank=True, null=True)
 
     def get_source_filename(self, index=None, absolute=False):
-        filename = 'videos/{}/{}.mp4'.format(self.pk, 'p{}'.format(index) if index else 'source')
+        ext = 'ts' if index else 'mp4'
+        filename = 'videos/{}/{}.{}'.format(self.pk, 'p{}'.format(index) if index else 'source', ext)
         return os.path.join(settings.MEDIA_ROOT, filename) if absolute else filename
 
     def __str__(self):

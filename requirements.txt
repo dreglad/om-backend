@@ -17,3 +17,4 @@ requests
 django-admin-json-editor
 django-cors-headers
 django-cacheback[celery]
+youtube-dl
