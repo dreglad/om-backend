@@ -85,40 +85,38 @@ def process_video(video_pk):
 
     video.set_status('STARTED', progress=0, result={'downloaded': '0'})
 
-    if len(video.sources) == 1:
-        # no need to join videos, download inmediately
-        download_video_youtubedl(video.sources[0], video.get_source_filename(absolute=True), video_pk)
-    else:
-        # start and wait for all download jobs
-        for index, url in enumerate(video.sources, start=1):
-            download_video_youtubedl(url, video.get_source_filename(index, absolute=True), video_pk)
+    # start and wait for download job(s)
+    for index, url in enumerate(video.sources, start=1):
+        print('trying with ', url)
+        download_video_youtubedl(url, video.get_source_filename(index, absolute=True), video_pk)
 
-        inputs = '|'.join([
-            video.get_source_filename(index, absolute=True)
-            for index in range(1, len(video.sources) + 1)
-            ])
-        cmd = 'ffmpeg -i "concat:{}" -c copy -movflags +faststart {}'.format(
-            inputs, video.get_source_filename(absolute=True))
-        print('Executing command: ', cmd)
-        thread = pexpect.spawn(cmd)
-        cpl = thread.compile_pattern_list([
-            pexpect.EOF,
-            'Duration: (\d\d:\d\d:\d\d\.?\d*)',
-            'time=(\d\d:\d\d:\d\d\.?\d*)'
+    inputs = '|'.join([
+        video.get_source_filename(index, absolute=True)
+        for index in range(1, len(video.sources) + 1)
         ])
-        prev_progress, duration, progress = None, 0, 0
-        while True:
-            i = thread.expect_list(cpl, timeout=None)
-            if i == 0: # EOF
-                print('join finished')
-                break
-            elif i == 1:
-                duration = thread.match.group(1)
-                print('duration', duration)
-            elif i == 2:
-                progress_time = thread.match.group(1)
-                print(progress_time)
-        thread.close()
+    cmd = 'ffmpeg -i "concat:{}" -c copy -movflags +faststart {}'.format(
+        inputs, video.get_source_filename(absolute=True))
+    print('Executing command: ', cmd)
+    thread = pexpect.spawn(cmd)
+    cpl = thread.compile_pattern_list([
+        pexpect.EOF,
+        'Duration: (\d\d:\d\d:\d\d\.?\d*)',
+        'time=(\d\d:\d\d:\d\d\.?\d*)'
+    ])
+    prev_progress, duration, progress = None, 0, 0
+    while True:
+        i = thread.expect_list(cpl, timeout=None)
+        if i == 0: # EOF
+            print('join finished')
+            break
+        elif i == 1:
+            duration = thread.match.group(1)
+            print('duration', duration)
+        elif i == 2:
+            progress_time = thread.match.group(1)
+            print(progress_time)
+    thread.close()
+
     # Finished
     vinfo = get_video_stream_info(video.get_source_filename(absolute=True))
     if vinfo and vinfo.get('duration'):
@@ -139,19 +137,31 @@ def download_video_youtubedl(url, filename, video_pk=None):
     if video_pk: video = Video.objects.get(pk=video_pk)
 
     def youtubedl_progress(d):
-        print(d)
-        if d['status'] == 'finished':
-            print('finished!')
+        if video_pk:
+            if d['status'] == 'downloading':
+                progress = d.get('fragment_index', 0)/float(d.get('fragment_count', 0))
+                video.set_status('STARTED', progress=progress - 0.01)
+            elif d['status'] == 'finished':
+                video.set_status('STARTED', progress=0.99)
+            elif d['status'] == 'error':
+                video.set_status('ERROR', result=d)
 
     ydl_opts = {
         'format': 'bestaudio/best',
         'logger': logger,
         'hls_use_mpegts': True,
+        # 'hls_prefer_native': True,
         'outtmpl': filename,
         'progress_hooks': [youtubedl_progress],
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        try:
+            print('About to download: ', url)
+            ydl.download([url])
+            return True
+        except youtube_dl.utils.DownloadError:
+            video.set_status('FAILURE', result={ 'failed_download': url })
+            return False
 
 
 @shared_task
