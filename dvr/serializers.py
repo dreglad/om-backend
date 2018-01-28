@@ -33,7 +33,7 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = (
             'id', 'stream', 'sources', 'start', 'end', 'file', 'images', 'duration',
-            'status', 'progress', 'metadata', 'created_at', 'result'
+            'status', 'progress', 'metadata', 'created_at', 'updated_at', 'result'
         )
 
 
