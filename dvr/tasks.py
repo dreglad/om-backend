@@ -87,11 +87,11 @@ def process_video(video_pk):
 
     if len(video.sources) == 1:
         # no need to join videos, download inmediately
-        download_video(video.sources[0], video.get_source_filename(absolute=True), video_pk)
+        download_video_youtubedl(video.sources[0], video.get_source_filename(absolute=True), video_pk)
     else:
         # start and wait for all download jobs
         for index, url in enumerate(video.sources, start=1):
-            download_video(url, video.get_source_filename(index, absolute=True), video_pk)
+            download_video_youtubedl(url, video.get_source_filename(index, absolute=True), video_pk)
 
         inputs = '|'.join([
             video.get_source_filename(index, absolute=True)
@@ -133,7 +133,29 @@ def process_video(video_pk):
 
 
 @shared_task
-def download_video(url, filename, video_pk=None):
+def download_video_youtubedl(url, filename, video_pk=None):
+    import youtube_dl
+
+    if video_pk: video = Video.objects.get(pk=video_pk)
+
+    def youtubedl_progress(d):
+        print(d)
+        if d['status'] == 'finished':
+            print('finished!')
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'logger': logger,
+        'hls_use_mpegts': True,
+        'outtmpl': filename,
+        'progress_hooks': [youtubedl_progress],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+
+@shared_task
+def download_video_ffmpeg(url, filename, video_pk=None):
     if video_pk: video = Video.objects.get(pk=video_pk)
 
     if not os.path.isdir(os.path.dirname(filename)):
