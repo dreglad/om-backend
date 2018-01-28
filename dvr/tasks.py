@@ -150,7 +150,7 @@ def download_video_youtubedl(url, filename, video_pk=None):
         'format': 'bestaudio/best',
         'logger': logger,
         'hls_use_mpegts': True,
-        # 'hls_prefer_native': True,
+        'hls_prefer_native': True,
         'outtmpl': filename,
         'progress_hooks': [youtubedl_progress],
     }
