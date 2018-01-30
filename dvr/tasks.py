@@ -103,13 +103,13 @@ def process_video(video_pk):
     for part in parts:
         print('Demuxing to mpegts')
         pexpect.spawn(
-            'ffmpeg -i {0} -c copy -f mpegts {0}.ts'.format(part)
+            'ffmpeg -y -i {0} -c copy -f mpegts {0}.ts'.format(part)
             ).wait()
 
     source_filename = video.get_source_filename(absolute=True)
 
     print('About to join: ', source_filename)
-    cmd = 'ffmpeg -i "concat:{}" -c copy -f mp4 -movflags +faststart {}'.format(
+    cmd = 'ffmpeg -y -i "concat:{}" -c copy -f mp4 -movflags +faststart {}'.format(
         '|'.join(map(lambda p: '{}.ts'.format(p), parts)), source_filename)
     print('Concat to mp4 command: ', cmd)
     pexpect.spawn(cmd).wait()
@@ -121,7 +121,8 @@ def process_video(video_pk):
             'SUCCESS', progress=1,
             file=video.get_source_filename(),
             duration=timedelta(seconds=float(vinfo['duration'])),
-            width=vinfo['width'], height=vinfo['height']
+            width=vinfo['width'], height=vinfo['height'],
+            result={'finished': timezone.now().strftime()}
             )
     else:
         video.set_status('FAILURE', result=vinfo or None)
