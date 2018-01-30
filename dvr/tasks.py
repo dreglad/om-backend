@@ -122,7 +122,7 @@ def process_video(video_pk):
             file=video.get_source_filename(),
             duration=timedelta(seconds=float(vinfo['duration'])),
             width=vinfo['width'], height=vinfo['height'],
-            result={'finished': timezone.now().strftime()}
+            result={'finished': timezone.now().isoformat()}
             )
     else:
         video.set_status('FAILURE', result=vinfo or None)
