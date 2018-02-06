@@ -7,8 +7,7 @@ RUN \
   python3 \
   python3-dev \
   python3-setuptools \
-  python3-pip \
-  uwsgi
+  python3-pip
 
 ENV PYTHONUNBUFFERED 1
 
@@ -16,8 +15,7 @@ RUN mkdir /app
 ADD . /app/
 
 WORKDIR /app
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+RUN pip3 install --upgrade -r requirements.txt
 
-RUN chmod +x web-entrypoint.sh
+# reset image's default entrypoint (ffmpeg)
 ENTRYPOINT []

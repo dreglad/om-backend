@@ -26,6 +26,7 @@ class WorkableMixin(models.Model):
     status = models.CharField(_('status'), max_length=32, db_index=True, editable=True,
                                 choices=STATUS_CHOICES, default=PENDING)
     progress = models.FloatField(_('progress'), null=True, blank=True, editable=True)
+    # step = models.PositiveSmallIntegerField(_('step'), blank=True, null=True    )
     result = HStoreField(_('result'), null=True, blank=True)
 
     def set_status(self, status, **field_values):
@@ -58,7 +59,7 @@ class MetadatableMixin(models.Model):
     """
     MetadatableMixin. Allows a model to have a user-specified key/value metadata
     """
-    metadata = HStoreField(_('metadata'), null=True, blank=True)
+    metadata = HStoreField(_('metadata'), default={})
 
     class Meta:
         abstract = True

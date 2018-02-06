@@ -26,7 +26,7 @@ logger = logging.getLogger('tasks')
 def autocreate_scene_analysis():
     """Auto-create scene analysis objects and dispatch their associated background jobs"""
     logging.debug('Executing autocreate_scene_analysis task')
-    AUTOCREATE_DURATION = timedelta(minutes=15)
+    AUTOCREATE_DURATION = timedelta(minutes=20)
     for stream in Stream.objects.all():
         running = stream.scene_analysis.filter(status='STARTED')
         if not running.exists():
@@ -98,21 +98,25 @@ def process_video(video_pk):
     parts = [video.get_source_filename(index, absolute=True)
              for index in range(1, len(video.sources) + 1)]
 
-    print('Parts are: ', parts)
+    video.set_status('STARTED', progress=0.98)
 
+    print('Parts are: ', parts)
     for part in parts:
         print('Demuxing to mpegts')
         pexpect.spawn(
-            'ffmpeg -y -i {0} -c copy -f mpegts {0}.ts'.format(part)
-            ).wait()
+            # 'ffmpeg -y -i {0} -c copy -f mpegts {0}.ts'.format(part)
+            'ffmpeg -y -i {0} -c copy -bsf:v h264_mp4toannexb -f mpegts {0}.ts'.format(part)
+            ).expect(pexpect.EOF, timeout=None)
 
     source_filename = video.get_source_filename(absolute=True)
 
+    video.set_status('STARTED', progress=0.99)
+
     print('About to join: ', source_filename)
-    cmd = 'ffmpeg -y -i "concat:{}" -c copy -f mp4 -movflags +faststart {}'.format(
+    cmd = 'ffmpeg -y -i "concat:{}" -c copy -f mp4 -bsf:a aac_adtstoasc {}'.format(
         '|'.join(map(lambda p: '{}.ts'.format(p), parts)), source_filename)
     print('Concat to mp4 command: ', cmd)
-    pexpect.spawn(cmd).wait()
+    pexpect.spawn(cmd).expect(pexpect.EOF, timeout=None)
 
     # Finished
     vinfo = get_video_stream_info(source_filename)
@@ -138,7 +142,7 @@ def download_video_youtubedl(url, filename, video_pk=None):
         if video_pk:
             if d['status'] == 'downloading':
                 progress = d.get('fragment_index', 0)/float(d.get('fragment_count', 0))
-                video.set_status('STARTED', progress=progress - 0.01)
+                video.set_status('STARTED', progress=progress - 0.03)
             elif d['status'] == 'finished':
                 video.set_status('STARTED', progress=0.99)
             elif d['status'] == 'error':
@@ -218,13 +222,13 @@ def analyze_scenes(scene_analysis_pk):
         metadata['wseStreamingUrl'],
         metadata['wseApplication'],
         # 'smil:{}.smil'.format(metadata['wseStream']),
-        '{}_360p'.format(metadata['wseStream']),
+        '{}_1080p'.format(metadata['wseStream']),
         'playlist.m3u8'
         ) + '?DVR&wowzadvrplayliststart={}&wowzadvrplaylistduration={}'.format(
                 scene_analysis.start.strftime('%Y%m%d%H%M%S'),
                 int(seconds * 1000))
     cmd_args = [
-        'ffmpeg', '-i', input_url, '-t', str(seconds), '-vsync', 'passthrough', '-an', '-f', 'null',
+        'ffmpeg', '-i', input_url, '-vsync', 'passthrough', '-an', '-f', 'null',
         '-vf', 'select=\'gte(scene,{})\',metadata=print'.format(change_thresshold),
         '-']
     current_pos = None

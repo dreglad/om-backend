@@ -9,6 +9,7 @@ djangorestframework
 djangorestframework-filters
 django-filter
 django-rest-swagger
+djangorestframework-hstore
 markdown
 pexpect
 Pillow
@@ -18,3 +19,5 @@ django-admin-json-editor
 django-cors-headers
 django-cacheback[celery]
 youtube-dl
+gunicorn
+pip
