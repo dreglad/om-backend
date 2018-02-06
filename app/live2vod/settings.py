@@ -28,7 +28,7 @@ SECRET_KEY = '=b)=e41e+e^@=@72e3nm(e50%q#&eb775_+sl%mvb#gsb+m+9('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dvr-backend.omedia.io', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -95,19 +95,20 @@ CELERY_TRACK_STARTED = True
 CELERY_CREATE_MISSING_QUEUES = True
 CELERY_DEFAULT_QUEUE = 'celery'
 CELERY_BEAT_SCHEDULE = {
-    # 'autocreate-scene-analysis': {
-    #     'task': 'dvr.tasks.autocreate_scene_analysis',
-    #     'schedule': schedule(run_every=60.0)
-    # },
-    'dispatch-conversions': {
-        'task': 'dvr.tasks.dispatch_conversions',
-        'schedule': schedule(run_every=5.0)
+    'autocreate-scene-analysis': {
+        'task': 'dvr.tasks.autocreate_scene_analysis',
+        'schedule': schedule(run_every=60.0)
     },
+    # 'dispatch-conversions': {
+    #     'task': 'dvr.tasks.dispatch_conversions',
+    #     'schedule': schedule(run_every=5.0)
+    # },
     'dispatch-videos': {
         'task': 'dvr.tasks.dispatch_videos',
         'schedule': schedule(run_every=5.0)
     },
 }
+CELERY_IMPORTS = ('dvr.tasks',)
 
 
 ROOT_URLCONF = 'live2vod.urls'
