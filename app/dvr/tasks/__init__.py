@@ -1,10 +1,11 @@
 import logging
 from time import sleep
 
-from celery import shared_task, task, group
+from celery import shared_task
 
-from dvr.models import *
-from .conversions import *
+from dvr.models import SceneAnalysis, Video
+
+# from .conversions import *
 from .scene_analysis import *
 from .videos import *
 
@@ -21,12 +22,12 @@ def dispatch_scene_analysis():
         analyze_scenes.delay(scene_analysis.pk)
 
 
-@shared_task
-def dispatch_conversions():
-   for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
-        conversion.set_status('QUEUED')
-        convert.apply_async([conversion.pk], queue='conversions')
-        sleep(0.5)
+# @shared_task
+# def dispatch_conversions():
+#    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
+#         conversion.set_status('QUEUED')
+#         convert.apply_async([conversion.pk], queue='conversions')
+#         sleep(0.5)
 
 
 @shared_task

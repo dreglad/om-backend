@@ -1,25 +1,13 @@
 from datetime import datetime, timedelta
 import logging
-import os
-from posixpath import join
-from subprocess import Popen, PIPE, call, check_output
-import re
-import tempfile
-from time import sleep
-from urllib.parse import urljoin
 
-from django.conf import settings
-from django.db.models import F
 from django.utils import timezone
-from celery import shared_task, task, group
-from celery.decorators import periodic_task
-from celery.result import allow_join_result
-import pexpect
+from celery import shared_task
 
-from .models import Conversion, SceneAnalysis, SceneChange, Stream, Video
-from .video_utils import get_video_stream_info
+from dvr.models import SceneAnalysis, SceneChange, Stream
 
 logger = logging.getLogger()
+
 
 @shared_task
 def autocreate_scene_analysis():

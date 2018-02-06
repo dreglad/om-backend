@@ -1,3 +1,7 @@
+from celery import shared_task
+
+from dvr.models import Video
+
 @shared_task
 def convert(conversion_pk):
     """Perform live-to-VOD conversion through the streaming provider"""
