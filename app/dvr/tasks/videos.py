@@ -14,6 +14,8 @@ from dvr.models import Video
 
 from .video_utils import get_video_stream_info
 
+logger = logging.getLogger()
+
 
 @shared_task
 def process_video(video_pk):
