@@ -1,6 +1,9 @@
 from celery import shared_task
 
-from dvr.models import Video
+from dvr.models import Conversion
+
+logger = logging.getLogger()
+
 
 @shared_task
 def convert(conversion_pk):
