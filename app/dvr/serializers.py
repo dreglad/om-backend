@@ -37,6 +37,31 @@ class VideoSerializer(serializers.ModelSerializer):
         )
 
 
+class SeriesRecurrenceSerializer(serializers.ModelSerializer):
+    recurrence = serializers.CharField()
+    class Meta:
+        model = SeriesRecurrence
+        fields = (
+            'id', 'series', 'recurrence', 'start_time', 'end_time', 'start_date', 'end_date',
+            'created_at', 'updated_at')
+
+
+class SeriesRecurrenceInlineSerializer(SeriesRecurrenceSerializer):
+    class Meta:
+        model = SeriesRecurrence
+        fields = ('id', 'recurrence', 'start_time', 'end_time', 'start_date', 'end_date')
+
+
+class SeriesSerializer(serializers.ModelSerializer):
+    recurrences = SeriesRecurrenceInlineSerializer(many=True)
+    class Meta:
+        model = Series
+        fields = (
+            'id', 'stream', 'name', 'recurrences', 'opening_sequence', 'closing_sequence', 'pause_sequence',
+            'comeback_sequence', 'metadata', 'created_at', 'modified_at', #'start', 'end'
+        )
+
+
 class DistributionChannelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DistributionChannel

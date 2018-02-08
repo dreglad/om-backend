@@ -57,6 +57,27 @@ class VideoAdmin(BaseAdmin):
     list_filter = ('stream', 'status')
 
 
+@admin.register(Series)
+class SeriesAdmin(BaseAdmin):
+    list_display = (
+        'id', 'stream', 'name', 'opening_sequence', 'closing_sequence',
+        'pause_sequence', 'comeback_sequence')
+    list_filter = ('stream',)
+
+
+@admin.register(SeriesRecurrence)
+class SeriesRecurrenceAdmin(BaseAdmin):
+    list_display = (
+        'id', 'series', 'recurrence', 'start_time', 'end_time', 'start_date', 'end_date')
+    list_filter = ('series', 'series__stream')
+
+    class Media:
+        js = ('recurrence/js/recurrence-widget.js',
+            'recurrence/js/recurrence.js')
+        css = {
+             'all': ('recurrence/css/recurrence.css',)
+        }
+
 @admin.register(DistributionChannel)
 class DistributionChannelAdmin(BaseAdmin):
     list_display = ('name', 'type', 'active', 'created_at', 'metadata', 'configuration')

@@ -23,6 +23,8 @@ router.register(r'streams', StreamViewSet)
 router.register(r'scene_changes', SceneChangeViewSet)
 router.register(r'scene_analysis', SceneAnalysisViewSet)
 router.register(r'videos', VideoViewSet)
+router.register(r'series', SeriesViewSet)
+router.register(r'series_recurrences', SeriesRecurrenceViewSet)
 # router.register(r'videos', VideoViewSet)
 
 urlpatterns = [

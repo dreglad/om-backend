@@ -65,17 +65,17 @@ services:
       - rabbitmq
       - cache
 
-  conversion_worker:
-    build:
-      context: ./app
-    command: ./run_conversion_worker.sh
-    volumes:
-      - ./app:/app
-      - media:/srv/media
-    depends_on:
-      - db
-      - rabbitmq
-      - cache
+  # conversion_worker:
+  #   build:
+  #     context: ./app
+  #   command: ./run_conversion_worker.sh
+  #   volumes:
+  #     - ./app:/app
+  #     - media:/srv/media
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+  #     - cache
 
   # Celery beat scheduler
   beat:

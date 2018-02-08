@@ -41,6 +41,27 @@ class VideoViewSet(viewsets.ModelViewSet):
     filter_fields = ('stream',)
 
 
+class SeriesViewSet(viewsets.ModelViewSet):
+    """
+    Series API endpoint.
+    """
+    queryset = Series.objects.all()
+    serializer_class = SeriesSerializer
+    filter_fields = (
+        'stream', 'recurrences__start_date', 'recurrences__end_date', 'recurrences__start_time',
+        'recurrences__end_time')
+
+
+class SeriesRecurrenceViewSet(viewsets.ModelViewSet):
+    """
+    Series Recurrence API endpoint.
+    """
+    queryset = SeriesRecurrence.objects.all()
+    serializer_class = SeriesRecurrenceSerializer
+    filter_fields = ('series', 'series__stream')
+
+
+
 class DistributionAttemptViewSet(viewsets.ModelViewSet):
     """
     DistributionAttempt API endpoint.

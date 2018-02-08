@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .mixins import *
 from .stream_providers import *
+from .fields import RecurrenceField
 
 logger = logging.getLogger('default')
 
@@ -62,10 +63,48 @@ class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
         verbose_name_plural = _('scene analysis')
 
 
+class Series(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
+    """Series model"""
+    stream = models.ForeignKey(
+        'Stream', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_('stream'),
+        related_name='series')
+    opening_sequence = models.ForeignKey(
+        'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('opening sequence'),
+        related_name='opening_sequence_series')
+    closing_sequence = models.ForeignKey(
+        'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('closing sequence'),
+        related_name='closing_sequence_series')
+    pause_sequence = models.ForeignKey(
+        'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('pause sequence'),
+        related_name='pause_sequence_series')
+    comeback_sequence = models.ForeignKey(
+        'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('comeback sequence'),
+        related_name='cmeback_sequence_series')
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('series')
+        verbose_name_plural = _('series')
+
+
+class SeriesRecurrence(EphemeralMixin):
+    series = models.ForeignKey(
+        'Series', on_delete=models.CASCADE, verbose_name=_('series'),
+        related_name='recurrences')
+    recurrence = RecurrenceField(_('recurrence'))
+    start_date = models.DateField(_('start date'), null=True, blank=True, db_index=True)
+    end_date = models.DateField(_('end date'), null=True, blank=True, db_index=True)
+    start_time = models.TimeField(_('start time'), db_index=True)
+    end_time = models.TimeField(_('end time'), db_index=True)
+
+    class Meta:
+        ordering = ['series', 'start_date', 'start_time']
+        verbose_name = _('series recurrence')
+        verbose_name_plural = _('series recurrences')
+
+
 class SceneChange(EphemeralMixin, models.Model):
-    """
-    SceneChange model.
-    """
+    """SceneChange model"""
     scene_analysis = models.ForeignKey(
         'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes',on_delete=models.CASCADE)
     time = models.DateTimeField(_('time', ))
@@ -120,6 +159,9 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     """
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='videos', on_delete=models.CASCADE)
+    series = models.ForeignKey(
+        'Series', verbose_name=_('series'), blank=True, null=True, on_delete=models.SET_NULL,
+        related_name='videos')
     sources = ArrayField(models.URLField(), verbose_name=_('sources'))
     start = models.DateTimeField(_('start'), db_index=True, null=True, blank=True)
     end = models.DateTimeField(_('end'), db_index=True, null=True, blank=True)

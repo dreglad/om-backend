@@ -59,7 +59,7 @@ class MetadatableMixin(models.Model):
     """
     MetadatableMixin. Allows a model to have a user-specified key/value metadata
     """
-    metadata = HStoreField(_('metadata'), default={})
+    metadata = HStoreField(_('metadata'), default=dict(), blank=True)
 
     class Meta:
         abstract = True
