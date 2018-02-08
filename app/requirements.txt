@@ -1,3 +1,4 @@
+pip
 Django<2.1
 psycopg2
 python-memcached
@@ -20,4 +21,4 @@ django-cors-headers
 django-cacheback[celery]
 youtube-dl
 gunicorn
-pip
+git+https://github.com/django-recurrence/django-recurrence.git#egg=django_recurrence
