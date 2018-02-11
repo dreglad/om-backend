@@ -7,7 +7,7 @@ import re
 from django.utils import timezone
 from celery import shared_task
 
-from dvr.models import SceneAnalysis, SceneChange, Stream
+from dvr.models import SceneAnalysis, SceneChange, SceneSeries, Stream
 
 logger = logging.getLogger()
 
