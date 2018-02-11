@@ -11,7 +11,8 @@ from .videos import *
 
 logger = logging.getLogger()
 
-"""Periodic tasks -dispatchers-"""
+
+"""Periodic tasks (dispatchers)"""
 
 @shared_task
 def dispatch_scene_analysis():
@@ -22,17 +23,17 @@ def dispatch_scene_analysis():
         analyze_scenes.delay(scene_analysis.pk)
 
 
-# @shared_task
-# def dispatch_conversions():
-#    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
-#         conversion.set_status('QUEUED')
-#         convert.apply_async([conversion.pk], queue='conversions')
-#         sleep(0.5)
-
-
 @shared_task
 def dispatch_videos():
     for video in Video.objects.filter(status='PENDING').order_by('id'):
         video.set_status('QUEUED')
         process_video.apply_async([video.pk])
         sleep(0.5)
+
+
+# @shared_task
+# def dispatch_conversions():
+#    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
+#         conversion.set_status('QUEUED')
+#         convert.apply_async([conversion.pk], queue='conversions')
+#         sleep(0.5)

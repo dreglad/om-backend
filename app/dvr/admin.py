@@ -13,7 +13,7 @@ class BaseAdmin(admin.ModelAdmin):
         'title': _('metadata'),
     }
     formfield_overrides = {
-        HStoreField: {'widget': JSONEditorWidget(DICT_SCHEMA) }
+        HStoreField: {'widget': JSONEditorWidget(DICT_SCHEMA)}
     }
 
 
@@ -28,7 +28,6 @@ class MicroDateTimeInput(forms.DateTimeInput):
 
 
 class ConversionForm(forms.ModelForm):
-    # start = MicroDateTimeInput(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = Conversion
         fields = '__all__'
@@ -43,13 +42,6 @@ class ConversionAdmin(BaseAdmin):
     autocomplete_fields = ('stream',)
     form = ConversionForm
 
-    # formfield_overrides = {
-    #     models.DateTimeField: {'widget': MicroDateTimeInput()},
-    # }
-
-
-# class ConversionInline(admin.TabularInline):
-#     model = Conversion
 
 @admin.register(Video)
 class VideoAdmin(BaseAdmin):
@@ -73,7 +65,7 @@ class SeriesRecurrenceAdmin(BaseAdmin):
 
     class Media:
         js = ('recurrence/js/recurrence-widget.js',
-            'recurrence/js/recurrence.js')
+              'recurrence/js/recurrence.js')
         css = {
              'all': ('recurrence/css/recurrence.css',)
         }

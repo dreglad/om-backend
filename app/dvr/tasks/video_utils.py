@@ -9,9 +9,6 @@ import re
 import shutil
 from subprocess import Popen, PIPE, call, check_output
 
-# import wget
-
-
 logger = logging.getLogger('multimedia_ops')
 
 
@@ -61,7 +58,6 @@ HLS_PARAMS = {
     'list_size': 0,
 }
 
-# TODO: DASH
 DASH_MODES = []  
 DASH_PARAMS = {}
 

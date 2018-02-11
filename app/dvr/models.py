@@ -15,9 +15,7 @@ logger = logging.getLogger('default')
 
 
 class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
-    """
-    Stream model.
-    """
+    """Stream model."""
     PROVIDER_CHOICES = (
         ('WowzaStreamingEngine', _('Wowza Streaming Engine')),
     )
@@ -41,9 +39,7 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
 
 
 class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
-    """
-    SceneAnalysis model.
-    """
+    """SceneAnalysis model."""
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='scene_analysis', on_delete=models.CASCADE)
     start = models.DateTimeField(_('start'), db_index=True)
@@ -88,9 +84,9 @@ class Series(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
 
 
 class SeriesRecurrence(EphemeralMixin):
+    """SeriesRecurrence"""
     series = models.ForeignKey(
-        'Series', on_delete=models.CASCADE, verbose_name=_('series'),
-        related_name='recurrences')
+        'Series', on_delete=models.CASCADE, verbose_name=_('series'), related_name='recurrences')
     recurrence = RecurrenceField(_('recurrence'))
     start_date = models.DateField(_('start date'), null=True, blank=True, db_index=True)
     end_date = models.DateField(_('end date'), null=True, blank=True, db_index=True)
@@ -106,8 +102,8 @@ class SeriesRecurrence(EphemeralMixin):
 class SceneChange(EphemeralMixin, models.Model):
     """SceneChange model"""
     scene_analysis = models.ForeignKey(
-        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_changes',on_delete=models.CASCADE)
-    time = models.DateTimeField(_('time', ))
+        'SceneAnalysis', verbose_name=_('scene analysis'), on_delete=models.CASCADE, related_name='scene_changes')
+    time = models.DateTimeField(_('time'), db_index=True)
     value = models.FloatField(_('value'), db_index=True, null=True, blank=True)
 
     def __str__(self):
@@ -120,24 +116,40 @@ class SceneChange(EphemeralMixin, models.Model):
         verbose_name_plural = _('scene changes')
 
 
+class SceneSeries(EphemeralMixin, models.Model):
+    """SceneSeries model"""
+    TYPE_CHOICES = (
+        ('OPENING', _('Opening')),
+        ('ENDING', _('Ending')),
+        ('PAUSE', _('Pause')),
+        ('CAMEBACK', _('Came back')),
+    )
+    scene_analysis = models.ForeignKey(
+        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_series',on_delete=models.CASCADE)
+    type = models.CharField(_('type'), max_length=16, choices=TYPE_CHOICES, db_index=True)
+    time = models.DateTimeField(_('time', ), db_index=True)
+    series = models.ForeignKey(
+        'Series', verbose_name=_('series'), on_delete=models.CASCADE, related_name='scene_series')
+
+    def __str__(self):
+        return '{} {} {} {} {} {} {}'.format(
+            _('Scene series'), _('of'), self.scene_analysis, _('at'), self.time, _('with series'), self.series)
+
+    class Meta:
+        ordering = ['-time', 'created_at']
+        verbose_name = _('scene series')
+        verbose_name_plural = _('scene series')
+
+
 class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
-    """
-    Conversion model.
-    """
+    """Conversion model."""
     stream = models.ForeignKey(
         'Stream', null=True, blank=True, on_delete=models.CASCADE,
         verbose_name=_('stream'), related_name='conversions'
     )
     dvr_store = models.CharField(_('DVR Store'), max_length=128, blank=True, null=True)
-    start = models.DateTimeField(_('start'))
+    start = models.DateTimeField(_('start'), db_index=True)
     duration = models.DurationField(_('duration'))
-
-    # def save(self, *args, **kwargs):
-    #     was_new = not self.pk and self.status == Conversion.PENDING
-    #     super(Conversion, self).save(*args, **kwargs)
-    #     if was_new:
-    #         from .tasks import convert
-    #         convert.delay(self.pk)
 
     @property
     def end(self):
@@ -154,9 +166,7 @@ class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):
 
 
 class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, models.Model):
-    """
-    Video model.
-    """
+    """Video model."""
     stream = models.ForeignKey(
         'Stream', verbose_name=_('stream'), related_name='videos', on_delete=models.CASCADE)
     series = models.ForeignKey(
@@ -186,19 +196,14 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
 
 
 class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, ConfigurableMixin, models.Model):
-    """
-    DistributionChannel model.
-    """
-    MULTIMEDIA = 'multimedia'
-    FTP = 'ftp'
-    YOUTUBE = 'youtube'
+    """DistributionChannel model."""
     TYPE_CHOICES = (
-        (MULTIMEDIA, _('Captura-Multimedia')),
-        (FTP, _('FTP')),
-        (YOUTUBE, _('YouTube')),
+        ('MULTIMEDIA', _('Captura-Multimedia')),
+        ('FTP', _('FTP')),
+        ('YOUTUBE', _('YouTube')),
     )
-    active = models.BooleanField(_('active'), default=True)
-    type = models.CharField(_('type'), max_length=128, choices=TYPE_CHOICES)
+    active = models.BooleanField(_('active'), default=True, db_index=True)
+    type = models.CharField(_('type'), max_length=16, choices=TYPE_CHOICES, db_index=True)
 
     class Meta:
         verbose_name = _('distribution channel')
@@ -206,10 +211,8 @@ class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, Confi
 
 
 class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, ConfigurableMixin, models.Model):
-    """
-    DistributionProfile model.
-    """
-    active = models.BooleanField(_('active'), default=True)
+    """DistributionProfile model."""
+    active = models.BooleanField(_('active'), default=True, db_index=True)
     channel = models.ForeignKey(
         'DistributionChannel', verbose_name=_('channel'), related_name='profiles', on_delete=models.CASCADE)
 
@@ -220,14 +223,13 @@ class DistributionProfile(NameableMixin, EphemeralMixin, MetadatableMixin, Confi
 
 
 class DistributionAttempt(EphemeralMixin, MetadatableMixin, WorkableMixin, models.Model):
-    """
-    DistributionAttempt model.
-    """
+    """DistributionAttempt model."""
     video = models.ForeignKey(
-        'Video', on_delete=models.CASCADE,
-        verbose_name=_('video'), related_name='distribution_attempts')
-    profile = models.ForeignKey('DistributionProfile', verbose_name=_('profile'), on_delete=models.CASCADE,
-                                related_name='attempts')
+        'Video', verbose_name=_('video'), on_delete=models.CASCADE,
+        related_name='distribution_attempts')
+    profile = models.ForeignKey(
+        'DistributionProfile', verbose_name=_('profile'), on_delete=models.CASCADE, 
+        related_name='distribution_attempts')
 
     class Meta:
         ordering = ['-created_at']

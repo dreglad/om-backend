@@ -5,7 +5,6 @@ from .models import *
 
 class ConversionSerializer(serializers.ModelSerializer):
     stream_url = serializers.HyperlinkedRelatedField(source='stream', view_name='stream-detail', read_only=True)
-    # url = serializers.HyperlinkedIdentityField(view_name='conversion-detail', read_only=True)
     class Meta:
         model = Conversion
         fields = (
@@ -22,7 +21,6 @@ class StreamListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class StreamDetailSerializer(serializers.HyperlinkedModelSerializer):
-    # provider_data = serializers.JSONField(read_only=True)
     class Meta:
         model = Stream
         fields = ('id', 'name', 'slug', 'provider', 'metadata', 'provider_data')
@@ -33,8 +31,7 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = (
             'id', 'stream', 'sources', 'start', 'end', 'file', 'images', 'duration',
-            'status', 'progress', 'metadata', 'created_at', 'modified_at', 'result'
-        )
+            'status', 'progress', 'metadata', 'created_at', 'modified_at', 'result')
 
 
 class SeriesRecurrenceSerializer(serializers.ModelSerializer):
@@ -58,8 +55,7 @@ class SeriesSerializer(serializers.ModelSerializer):
         model = Series
         fields = (
             'id', 'stream', 'name', 'recurrences', 'opening_sequence', 'closing_sequence', 'pause_sequence',
-            'comeback_sequence', 'metadata', 'created_at', 'modified_at', #'start', 'end'
-        )
+            'comeback_sequence', 'metadata', 'created_at', 'modified_at')
 
 
 class DistributionChannelSerializer(serializers.HyperlinkedModelSerializer):
@@ -81,14 +77,12 @@ class DistributionProfileSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SceneChangeSerializer(serializers.HyperlinkedModelSerializer):
-    # stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
     class Meta:
         model = SceneChange
         fields = ('id', 'time', 'value')
 
 
 class SceneAnalysisSerializer(serializers.HyperlinkedModelSerializer):
-    # stream = serializers.PrimaryKeyRelatedField(source='scene_analysis.stream', read_only=True)
     class Meta:
         model = SceneAnalysis
         fields = ('id', 'stream', 'start', 'end', 'status', 'progress', 'created_at')
