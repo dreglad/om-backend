@@ -6,7 +6,7 @@ from celery import shared_task
 from dvr.models import SceneAnalysis, Video
 
 # from .conversions import *
-from .scene_analysis import *
+from .scenes import search_changes
 from .videos import *
 
 logger = logging.getLogger()

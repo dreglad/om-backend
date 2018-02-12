@@ -20,13 +20,11 @@ logger = logging.getLogger()
 @shared_task
 def process_video(video_pk):
     video = Video.objects.get(pk=video_pk)
-
     video.set_status('STARTED', progress=0, result={'downloaded': '0'})
 
     # start and wait for download job(s)
     jobs = []
     for index, url in enumerate(video.sources, start=1):
-        print('trying with ', url)
         jobs.append(download_video_youtubedl.s(url, video.get_source_filename(index, absolute=True), video_pk))
 
     with allow_join_result():
@@ -39,20 +37,16 @@ def process_video(video_pk):
 
     print('Parts are: ', parts)
     for part in parts:
-        print('Demuxing to mpegts')
         pexpect.spawn(
-            # 'ffmpeg -y -i {0} -c copy -f mpegts {0}.ts'.format(part)
             'ffmpeg -y -i {0} -c copy -bsf:v h264_mp4toannexb -f mpegts {0}.ts'.format(part)
             ).expect(pexpect.EOF, timeout=None)
 
     source_filename = video.get_source_filename(absolute=True)
-
     video.set_status('STARTED', progress=0.99)
 
     print('About to join: ', source_filename)
     cmd = 'ffmpeg -y -i "concat:{}" -c copy -f mp4 -bsf:a aac_adtstoasc {}'.format(
         '|'.join(map(lambda p: '{}.ts'.format(p), parts)), source_filename)
-    print('Concat to mp4 command: ', cmd)
     pexpect.spawn(cmd).expect(pexpect.EOF, timeout=None)
 
     # Finished
@@ -67,8 +61,6 @@ def process_video(video_pk):
             )
     else:
         video.set_status('FAILURE', result=vinfo or None)
-
-
 
 
 @shared_task
@@ -111,7 +103,6 @@ def download_video_ffmpeg(url, filename, video_pk=None):
         os.makedirs(os.path.dirname(filename))
 
     cmd = 'ffmpeg -y -i "{}" -c copy {}'.format(url, filename)
-    print('Executing command: ', cmd)
     thread = pexpect.spawn(cmd)
     cpl = thread.compile_pattern_list([
         pexpect.EOF,
@@ -132,5 +123,4 @@ def download_video_ffmpeg(url, filename, video_pk=None):
             print(progress_time)
         if video_pk and duration and (progress != prev_progress):
             pass
-            #video.set_status('STARTED', pregress=xxxxx)
     thread.close()

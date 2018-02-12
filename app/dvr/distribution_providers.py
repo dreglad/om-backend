@@ -1,10 +1,8 @@
 import requests
 
 
-class DistributionProvider(object):  
-    """
-    DistributionProvider. Base class for publishing/distributing
-    """
+class DistributionProvider(object):
+    """DistributionProvider. Base class for publishing/distributing"""
     def __init__(self, stream):
         self.stream = stream
         self.provider = eval(stream.provider + "Provider")

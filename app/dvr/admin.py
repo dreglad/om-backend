@@ -51,10 +51,16 @@ class VideoAdmin(BaseAdmin):
     list_filter = ('stream', 'status')
 
 
+@admin.register(FoundSequence)
+class FoundSequenceAdmin(BaseAdmin):
+    list_display = ('id', 'series', 'type', 'time', 'created_at')
+    list_filter = ('series', 'series__stream')
+
+
 @admin.register(Series)
 class SeriesAdmin(BaseAdmin):
     list_display = (
-        'id', 'stream', 'name', 'opening_sequence', 'closing_sequence',
+        'name', 'stream', 'opening_sequence', 'closing_sequence',
         'pause_sequence', 'comeback_sequence')
     list_filter = ('stream',)
 

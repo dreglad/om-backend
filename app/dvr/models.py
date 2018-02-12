@@ -68,18 +68,22 @@ class Series(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
     stream = models.ForeignKey(
         'Stream', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_('stream'),
         related_name='series')
-    opening_sequence = models.ForeignKey(
+    opening_sequence = models.OneToOneField(
         'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('opening sequence'),
         related_name='opening_sequence_series')
-    closing_sequence = models.ForeignKey(
+    opening_sequence_offset = models.DurationField(_('opening sequence offset'), default=timedelta)
+    closing_sequence = models.OneToOneField(
         'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('closing sequence'),
         related_name='closing_sequence_series')
-    pause_sequence = models.ForeignKey(
+    closing_sequence_offset = models.DurationField(_('closing sequence offset'), default=timedelta)
+    pause_sequence = models.OneToOneField(
         'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('pause sequence'),
         related_name='pause_sequence_series')
-    comeback_sequence = models.ForeignKey(
+    pause_sequence_offset = models.DurationField(_('pause sequence offset'), default=timedelta)
+    comeback_sequence = models.OneToOneField(
         'Video', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('comeback sequence'),
-        related_name='cmeback_sequence_series')
+        related_name='cameback_sequence_series')
+    cameback_sequence_offset = models.DurationField(_('cameback sequence offset'), default=timedelta)
 
     class Meta:
         ordering = ['name']
@@ -120,29 +124,27 @@ class SceneChange(EphemeralMixin, models.Model):
         verbose_name_plural = _('scene changes')
 
 
-class SceneSeries(EphemeralMixin, models.Model):
+class FoundSequence(EphemeralMixin, models.Model):
     """SceneSeries model"""
     TYPE_CHOICES = (
-        ('OPENING', _('Opening')),
-        ('ENDING', _('Ending')),
-        ('PAUSE', _('Pause')),
-        ('CAMEBACK', _('Came back')),
+        ('opening_sequence', _('Opening sequence')),
+        ('closing_sequence', _('Closing sequence')),
+        ('pause_sequence', _('Pause sequence')),
+        ('cameback_sequence', _('Cameback sequence')),
     )
-    scene_analysis = models.ForeignKey(
-        'SceneAnalysis', verbose_name=_('scene analysis'), related_name='scene_series',on_delete=models.CASCADE)
-    type = models.CharField(_('type'), max_length=16, choices=TYPE_CHOICES, db_index=True)
+    type = models.CharField(_('type'), max_length=32, choices=TYPE_CHOICES, db_index=True)
+    series = models.ForeignKey('Series', verbose_name=_('series'), on_delete=models.CASCADE,
+                               related_name='found_sequences')
     time = models.DateTimeField(_('time', ), db_index=True)
-    series = models.ForeignKey(
-        'Series', verbose_name=_('series'), on_delete=models.CASCADE, related_name='scene_series')
 
-    def __str__(self):
-        return '{} {} {} {} {} {} {}'.format(
-            _('Scene series'), _('of'), self.scene_analysis, _('at'), self.time, _('with series'), self.series)
+    @property
+    def sequence_video(self):
+        return getattr(self.series, self.type)
 
     class Meta:
         ordering = ['-time', 'created_at']
-        verbose_name = _('scene series')
-        verbose_name_plural = _('scene series')
+        verbose_name = _('found sequence')
+        verbose_name_plural = _('found sequences')
 
 
 class Conversion(WorkableMixin, EphemeralMixin, MetadatableMixin, models.Model):

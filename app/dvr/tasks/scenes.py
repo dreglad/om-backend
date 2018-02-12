@@ -7,9 +7,38 @@ import re
 from django.utils import timezone
 from celery import shared_task
 
-from dvr.models import SceneAnalysis, SceneChange, SceneSeries, Stream
+from dvr.models import SceneAnalysis, SceneChange, Stream, Series, FoundSequence
 
 logger = logging.getLogger()
+
+
+def range_milliseconds(start, stop, step=1000):
+    for ms in range(0, int((stop - start).total_seconds() * 1000), step):
+        yield start + timedelta(milliseconds=ms)
+
+
+def search_sequence(start, end, series_qs, sequence_types):
+    series_qs.filter(**{'{}__isnull'.format(sequence_type): False})
+    for probe_time in range_milliseconds(start, end):
+        for series in series_qs:
+            for sequence_type in sequence_types:
+                video = getattr(series, sequence_type)
+                score = compare_videos(series.stream.get_playlist(probe_time, video.duration), video.file.url)
+                print(score)
+                if (score):
+                    # TODO: asses SSIM and PSNR
+                    return (prove_time, video)
+    return (prove_time, None)
+
+
+
+def search_series(start, end, stream_id):
+    series_qs = Series.objects.filter(stream_id=stream_id)
+    opening_time, opening = search_sequence(start, end, series_qs, ['opening_sequence'])
+    if opening:
+        series = opening.opening_sequence_series
+        found_sequence = FoundSequence.objects.create(
+            sequence_type='opening_sequence', series=series, time=opening_time + series.opening_sequence_offset)
 
 
 @shared_task
@@ -40,15 +69,15 @@ def autocreate_scene_analysis():
             if start >= min_available and end <= max_available:
                 logging.debug('Autocreating SceneAnalysis')
                 scene_analysis = SceneAnalysis.objects.create(stream=stream, start=start, end=end, status='QUEUED')
-                analyze_scenes.delay(scene_analysis.pk)
+                search_changes.delay(scene_analysis.pk)
             else:
                 logging.info('Autocreate duration falls outside available range, skippong SceneAnalysis cretion')
 
 
 @shared_task
-def analyze_scenes(scene_analysis_pk):
+def search_changes(scene_analysis_pk):
     """Perform scene change analysis with FFmpeg"""
-    logging.debug('Executing analyze_scenes task')
+    logging.debug('Executing search_changes task')
     try:
         scene_analysis = SceneAnalysis.objects.get(pk=scene_analysis_pk)
     except SceneAnalysis.DoesNotExist:
@@ -92,3 +121,25 @@ def analyze_scenes(scene_analysis_pk):
                     progress = current_pos / float(scene_analysis.duration.total_seconds())
                     scene_analysis.set_status('STARTED', progress=progress)
     scene_analysis.set_status('SUCCESS', progress=1)
+
+
+@shared_task
+def compare_videos(test_video, ref_video):
+    cmd = 'ffmpeg -i "{}" -i "{}" -lavfi "ssim;[0:v][1:v]psnr" -f null -'
+    thread = pexpect.spawn(cmd)
+    cpl = thread.compile_pattern_list([
+        pexpect.EOF,
+        'SSIM Y:(.+) \((.+)\) U:(.+) \((.+)\) V:(.+) \((.+)\) All:(.+) \((.+)\)',
+        'PSNR y:(.+) u:(.+) v:(.+) average:(.+) min:(.+) max:(.+)',
+        ])
+    ssim = psnr = ''
+    while True:
+        i = thread.expect_list(cpl, timeout=None)
+        if i == 0: # EOF
+            print('subprocess finished')
+        elif i == 1:
+            ssim = thread.match.group(0)
+        elif i == 2:
+            psnr = thread.match.group(0)
+    thread.close()
+    return (ssim, psnr)
