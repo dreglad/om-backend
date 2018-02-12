@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from guardian.admin import GuardedModelAdmin
 from django.contrib.postgres.fields import HStoreField
 from django_admin_json_editor import JSONEditorWidget
 from django.utils.translation import ugettext_lazy as _
@@ -7,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from .models import *
 
 
-class BaseAdmin(admin.ModelAdmin):
+class BaseAdmin(GuardedModelAdmin):
     DICT_SCHEMA = {
         'type': 'object',
         'title': _('metadata'),
@@ -22,6 +23,7 @@ class StreamAdmin(BaseAdmin):
     list_display = ('name', 'provider', 'metadata')
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ('name',)
+
 
 class MicroDateTimeInput(forms.DateTimeInput):
     supports_microseconds = True

@@ -9,6 +9,9 @@ django-celery-results
 djangorestframework
 djangorestframework-filters
 django-filter
+django-guardian
+channels_api
+channels
 django-rest-swagger
 djangorestframework-hstore
 markdown
