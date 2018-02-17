@@ -4,6 +4,7 @@ from posixpath import join
 from subprocess import Popen, PIPE
 import re
 
+from django.conf import settings
 from django.utils import timezone
 from celery import shared_task
 
@@ -45,6 +46,9 @@ def search_series(start, end, stream_id):
 def autocreate_scene_analysis():
     """Auto-create scene analysis objects and dispatch their associated background jobs"""
     logging.debug('Executing autocreate_scene_analysis task')
+    if settings.DEBUG:
+        logging.info('Skupping tasks in DEBUG mode')
+        return
     AUTOCREATE_DURATION = timedelta(minutes=20)
     for stream in Stream.objects.all():
         running = stream.scene_analysis.filter(status='STARTED')

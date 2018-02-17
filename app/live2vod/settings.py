@@ -97,13 +97,13 @@ CELERY_CREATE_MISSING_QUEUES = True
 CELERY_DEFAULT_QUEUE = 'celery'
 CELERY_BEAT_SCHEDULE = {
     'autocreate-scene-analysis': {
-        'task': 'dvr.tasks.scene_analysis.autocreate_scene_analysis',
+        'task': 'dvr.tasks.scenes.autocreate_scene_analysis',
         'schedule': schedule(run_every=60.0)
     },
-    # 'dispatch-conversions': {
-    #     'task': 'dvr.tasks.dispatch_conversions',
-    #     'schedule': schedule(run_every=5.0)
-    # },
+    'dispatch-conversions': {
+        'task': 'dvr.tasks.dispatch_conversions',
+        'schedule': schedule(run_every=5.0)
+    },
     'dispatch-videos': {
         'task': 'dvr.tasks.dispatch_videos',
         'schedule': schedule(run_every=5.0)
