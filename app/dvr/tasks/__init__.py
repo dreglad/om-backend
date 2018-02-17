@@ -42,7 +42,7 @@ def dispatch_conversions():
     if settings.DEBUG:
         logging.info('Skipping task in DEBUG mode')
         return
-   for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
+    for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
         conversion.set_status('QUEUED')
         convert.apply_async([conversion.pk], queue='conversions')
         sleep(0.5)
