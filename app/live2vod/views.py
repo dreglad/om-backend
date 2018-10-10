@@ -5,6 +5,7 @@ import pytz
 
 from django.http import HttpResponse
 from django.utils import timezone
+import requests
 
 from dvr.models import Stream
 from dvr.tasks.video_utils import download_live_video_sample, get_video_duration
@@ -24,8 +25,13 @@ def check_streams(request):
                 '/v2/servers/_defaultServer_/vhosts/_defaultVHost_'
                 '/applications/{wseApplication}/instances/_definst_'
                 '/incomingstreams/{wseStream}/actions/resetStream'
-                ).format(**m)
+                ).format(**stream.metadata)
             )
+            print('Resetting stream: {}'.format(reset_url))
+            r = requests.put(reset_url)
+            print(r.body)
+            return HttpResponse('Not Ok, restarted')
+
     return HttpResponse('Ok')
 
 
