@@ -35,6 +35,5 @@ def _test_live(stream):
     test_url = urljoin(stream.metadata['wseStreamingUrl'],
                        '{wseApplication}/{wseStream}/playlist.m3u8').format(**stream.metadata)
     download_live_video_sample(test_url, time=6, filename=filename)
-
-    print(info['duration'])
+    print(get_video_duration(filename))
     return get_video_duration(filename) > timedelta(seconds=4)

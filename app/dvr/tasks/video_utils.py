@@ -104,7 +104,7 @@ def get_video_duration(input_file):
     """Returns a datetime.timedelta representing video duration"""
     cmd = ('ffmpeg -i {input_file} 2>&1 | grep "Duration" '
            '| cut -d " " -f 4 | cut -d "." -f 1').format(input_file=input_file)
-    d = Popen(cmd, stdout=PIPE, shell=True).stdout.read().strip().split(':')
+    d = Popen(cmd, stdout=PIPE, shell=True).stdout.read().decode().strip().split(':')
     logger.debug('Got video duration: %s' % d)
     return timedelta(hours=int(d[0]), minutes=int(d[1]), seconds=int(d[2]))
 
