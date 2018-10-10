@@ -253,7 +253,7 @@ def download_live_video_sample(url, time=10, filename='/tmp/test.mp4'):
     return call([
       '/usr/local/bin/ffmpeg', '-y',
       '-i', url,
-      '-t', time,
+      '-t', str(time),
       '-c:v', 'copy',
       '-c:a', 'copy',
       filename
