@@ -249,6 +249,17 @@ def make_dash_segments():
     pass
 
 
+def download_live_video_sample(url, time=10, filename='/tmp/test.mp4'):
+    return call([
+      '/usr/local/bin/ffmpeg', '-y',
+      '-i', url,
+      '-t', time,
+      '-c:v', 'copy',
+      '-c:a', 'copy',
+      filename
+    ])
+
+
 def download_video(source, output_file, progress_fn=None, force_direct=False):
     """Downloads video file from url and"""
     logger.debug('download_video with params: %s, %s' % (source, output_file))

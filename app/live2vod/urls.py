@@ -6,6 +6,7 @@ from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
 from dvr.views import *
+from .views import check_streams
 
 admin.site.site_header = "Open Multimedia"
 admin.site.site_title = "Open"
@@ -30,6 +31,7 @@ router.register(r'series_recurrences', SeriesRecurrenceViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('webhooks/check_streams/', check_streams),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-docs/', get_swagger_view(title='DVR REST API Documentation'))
 ]
