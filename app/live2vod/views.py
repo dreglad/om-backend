@@ -13,7 +13,7 @@ def check_streams(request):
         filename = '/tmp/temp.mp4'
         test_url = urljoin(m['wseStreamingUrl'],
                            '{wseApplication}/{wseStream}/playlist.m3u8').format(**m)
-        download_live_video_sample(test_url, time=6, output=filename)
+        download_live_video_sample(test_url, time=6, filename=filename)
         info = get_video_info(filename)
         if info.get('duration') > '5000':
             print('Streaming OK')
