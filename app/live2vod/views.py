@@ -3,7 +3,7 @@ from posixpath import join
 from urllib.parse import urljoin
 
 from django.http import HttpResponse
-from django.urils import timezone
+from django.utils import timezone
 
 from dvr.models import Stream
 from dvr.tasks.video_utils import download_live_video_sample, get_video_duration
