@@ -12,6 +12,7 @@ from dvr.tasks.video_utils import download_live_video_sample, get_video_duration
 
 
 def check_streams(request):
+    errors = []
     for stream in Stream.objects.all():
         try:
             # Test stream metadata for a recent recording time
@@ -30,9 +31,10 @@ def check_streams(request):
             print('Resetting stream: {}'.format(reset_url))
             r = requests.put(reset_url)
             print(r.body)
-            return HttpResponse('Not Ok, restarted')
+            errors.push(stream.metadata['wseStream'])
 
-    return HttpResponse('Ok')
+    status = 500 if len(errors) else 200:
+    return HttpResponse(', '.join(errors), status=status)
 
 
 def _test_live(stream):
