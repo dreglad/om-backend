@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from posixpath import join
 from urllib.parse import urljoin
+import pytz
 
 from django.http import HttpResponse
 from django.utils import timezone
@@ -14,7 +15,7 @@ def check_streams(request):
         try:
             # Test stream metadata for a recent recording time
             end = datetime.fromtimestamp(stream.get_provider().get_data()['current_store_details']['utcEnd']/1000.0)
-            assert end > timezone.now() - timedelta(minutes=3)
+            assert pytz.utc.localize(end) > timezone.now() - timedelta(minutes=3)
             # Download and test a sample video
             assert _test_live(stream)
         except Exception as e:
