@@ -83,7 +83,7 @@ def get_video_info(file):
     """Returns dictionary with info about the video format, using ffprobe"""
     cmd = ('ffprobe -v error -print_format json -show_entries '
            'format=duration,size:stream=codec_name,width,height %s') % file
-    info = Popen(cmd, shell=True, stdout=PIPE).stdout.read()
+    info = Popen(cmd, shell=True, stdout=PIPE).stdout.read().decode()
     logger.debug('Got video format info: %s' % info)
     return json.loads(info)
 
