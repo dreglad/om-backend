@@ -33,7 +33,7 @@ def check_streams(request):
             print(r.body)
             errors.push(stream.metadata['wseStream'])
 
-    status = 500 if len(errors) else 200:
+    status = 500 if len(errors) else 200
     return HttpResponse(', '.join(errors), status=status)
 
 
