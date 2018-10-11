@@ -1,4 +1,4 @@
-FROM jrottenberg/ffmpeg
+FROM jrottenberg/ffmpeg:4.0
 
 RUN \
   apt-get update && \
@@ -17,6 +17,7 @@ ADD . /app/
 
 WORKDIR /app
 RUN pip3 install --upgrade -r requirements.txt
+
 
 # reset image's default entrypoint (ffmpeg)
 ENTRYPOINT []
