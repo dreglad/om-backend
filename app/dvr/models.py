@@ -37,9 +37,6 @@ class Stream(EphemeralMixin, NameableMixin, MetadatableMixin, models.Model):
     class Meta:
         verbose_name = _('stream')
         verbose_name_plural = _('streams')
-        permissions = (
-            ('view_stream', 'View stream'),
-        )
 
 
 class SceneAnalysis(EphemeralMixin, WorkableMixin, models.Model):
