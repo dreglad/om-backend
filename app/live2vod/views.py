@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 from posixpath import join
 from urllib.parse import urljoin
 import pytz
+from time import sleep
 
 from django.http import HttpResponse
 from django.utils import timezone
@@ -22,16 +23,17 @@ def check_streams(request):
             assert _test_live(stream)
         except Exception as e:
             print('Streaming not OK: %s' % e)
-            reset_url = urljoin(m['wseApiUrl'], (
+            reset_url = urljoin(stream.metadata['wseApiUrl'], (
                 '/v2/servers/_defaultServer_/vhosts/_defaultVHost_'
                 '/applications/{wseApplication}/instances/_definst_'
-                '/incomingstreams/{wseStream}/actions/resetStream'
+                '/actions/restart'
                 ).format(**stream.metadata)
             )
             print('Resetting stream: {}'.format(reset_url))
             r = requests.put(reset_url)
-            print(r.body)
-            errors.push(stream.metadata['wseStream'])
+            print(r)
+            sleep(7)
+            errors.append(stream.metadata['wseStream'])
 
     status = 500 if len(errors) else 200
     return HttpResponse(', '.join(errors), status=status)
