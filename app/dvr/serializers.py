@@ -40,7 +40,7 @@ class SeriesRecurrenceSerializer(serializers.ModelSerializer):
         model = SeriesRecurrence
         fields = (
             'id', 'series', 'recurrence', 'start_time', 'end_time', 'start_date', 'end_date',
-            'created_at', 'updated_at')
+            'created_at', 'modified_at')
 
 
 class SeriesRecurrenceInlineSerializer(SeriesRecurrenceSerializer):

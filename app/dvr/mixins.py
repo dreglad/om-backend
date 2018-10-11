@@ -48,7 +48,7 @@ class EphemeralMixin(models.Model):
 
 class MetadatableMixin(models.Model):
     """MetadatableMixin. Allows a model to have a user-specified key/value metadata"""
-    metadata = HStoreField(_('metadata'), default=dict(), blank=True)
+    metadata = HStoreField(_('metadata'), default=lambda: {}, blank=True)
 
     class Meta:
         abstract = True

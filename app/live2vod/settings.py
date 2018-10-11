@@ -48,10 +48,10 @@ INSTALLED_APPS = [
     # 'django_celery_beat',
     'django_celery_results',
     'django_filters',
+    'rest_framework_filters',
     'cacheback',
     'corsheaders',
     'rest_framework',
-    'rest_framework_filters',
     'guardian',
 
     'dvr',
@@ -80,8 +80,8 @@ REST_FRAMEWORK = {
     # ],
     # 'PAGE_SIZE': 10
     'DEFAULT_FILTER_BACKENDS': (
-        # 'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework_filters.backends.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework_filters.backends.RestFrameworkFilterBackend'
     ),
 }
 
@@ -204,7 +204,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/srv/static'
 
-MEDIA_URL = '/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = '/srv/media'
 
 

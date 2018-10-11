@@ -2,7 +2,7 @@ import logging
 import os
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField, HStoreField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -182,7 +182,7 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
     start = models.DateTimeField(_('start'), db_index=True, null=True, blank=True)
     end = models.DateTimeField(_('end'), db_index=True, null=True, blank=True)
     file = models.FileField(_('video file'), blank=True, upload_to="videos/")
-    images = ArrayField(models.FileField(upload_to='images'), verbose_name=_('thumbnails'), default=[], blank=True)
+    images = ArrayField(models.FileField(upload_to='images'), verbose_name=_('thumbnails'), default=lambda: [], blank=True)
     duration = models.DurationField(_('duration'), null=True, blank=True)
     width = models.PositiveSmallIntegerField(_('width'), blank=True, null=True)
     height = models.PositiveSmallIntegerField(_('height'), blank=True, null=True)
