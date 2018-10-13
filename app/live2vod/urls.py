@@ -2,10 +2,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from graphene_django.views import GraphQLView
 from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
 from dvr.views import *
+from dvr.schema import schema
+
 from .views import check_streams
 
 admin.site.site_header = "Open Multimedia"
@@ -33,7 +36,8 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('webhooks/check_streams/', check_streams),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api-docs/', get_swagger_view(title='DVR REST API Documentation'))
+    path('api-docs/', get_swagger_view(title='DVR REST API Documentation')),
+    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
 
 if settings.DEBUG:
