@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.rest_framework.mutation import SerializerMutation
 from graphene.relay import Node
-from graphene import ObjectType, Schema, String, DateTime, List, Field
+from graphene import ObjectType, Schema, String, DateTime, List, Field, Boolean
 # from graphene.types.datetime import DateTime
 from rest_framework import serializers
 
@@ -24,21 +24,21 @@ class StreamRendition(ObjectType):
 
 
 class StreamNode(DjangoObjectType):
-    renditions = List(StreamRendition)
+    renditions = Field(List(StreamRendition), current=Boolean())
 
     def resolve_renditions(self, info):
-        print(self.provider_data)
+        print('all provider data', self.provider_data)
         stores = self.provider_data.get('stores')
         if stores:
-            print(stores)
+            print('tiene;', stores)
             return [
                 StreamRendition(
                     name=name,
                     stores=[
                         StreamStore(
                             name=store['name'],
-                            start=datetime.fromtimestamp(store['utcEnd']/1000.0),
-                            end=datetime.fromtimestamp(store['utcStart']/1000.0)
+                            start=datetime.fromtimestamp(store.get('utcStart', 0) / 1000),
+                            end=datetime.fromtimestamp(store.get('utcEnd', 0) / 1000)
                         )
                         for store in stores
                     ])
