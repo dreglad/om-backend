@@ -18,22 +18,25 @@ def check_streams(request):
         try:
             # Test stream metadata for a recent recording time
             end = datetime.fromtimestamp(stream.get_provider().get_data()['current_store_details']['utcEnd']/1000.0)
-            assert pytz.utc.localize(end) > timezone.now() - timedelta(minutes=3)
+            dvr_time, threshold_time = (pytz.utc.localize(end), timezone.now() - timedelta(minutes=3))
+            print('dvr', dvr_time, 'and threshold', threshold_time)
+            assert dvr_time > threshold_time
             # Download and test a sample video
             assert _test_live(stream)
         except Exception as e:
             print('Streaming not OK: %s' % e)
             reset_url = urljoin(stream.metadata['wseApiUrl'], (
                 '/v2/servers/_defaultServer_/vhosts/_defaultVHost_'
-                '/applications/{wseApplication}/instances/_definst_'
+                '/applications/{wseApplication}'
                 '/actions/restart'
                 ).format(**stream.metadata)
             )
             print('Resetting stream: {}'.format(reset_url))
             r = requests.put(reset_url)
-            print(r)
+            print(r.text)
             sleep(7)
             errors.append(stream.metadata['wseStream'])
+            continue  # Only restart once
 
     status = 500 if len(errors) else 200
     return HttpResponse(', '.join(errors), status=status)
