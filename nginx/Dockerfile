@@ -1,4 +1,4 @@
-FROM jrottenberg/ffmpeg:centos
+FROM jrottenberg/ffmpeg:4.0-centos
 
 RUN \
   yum -y upgrade && \
