@@ -208,7 +208,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/srv/static'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/'
 MEDIA_ROOT = '/srv/media'
 
 

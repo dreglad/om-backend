@@ -47,23 +47,9 @@ services:
       - media:/srv/media
       - static:/srv/static
     ports:
-      - "4010"
+      - "4010:4010"
     links:
       - web
-
-  nginx-ssl-proxy:
-    image: danieldent/nginx-ssl-proxy
-    environment:
-      UPSTREAM: media:4010
-      SERVERNAME:
-      EXTRANAMES:
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - letsencrypt:/etc/letsencrypt
-    links:
-      - media
 
   # Celery worker
   worker:
@@ -106,4 +92,3 @@ services:
 volumes:
   media:
   static:
-  letsencrypt:
