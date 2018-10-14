@@ -47,14 +47,14 @@ services:
       - media:/srv/media
       - static:/srv/static
     ports:
-      - "8081:8081"
+      - "4010"
     links:
       - web
 
   nginx-ssl-proxy:
     image: danieldent/nginx-ssl-proxy
     environment:
-      UPSTREAM: media:8081
+      UPSTREAM: media:4010
       SERVERNAME:
       EXTRANAMES:
     ports:
