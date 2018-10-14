@@ -1,4 +1,5 @@
 from datetime import datetime
+from operator import itemgetter
 
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
@@ -16,6 +17,7 @@ class StreamStore(ObjectType):
     name = String()
     start = DateTime()
     end = DateTime()
+    current = Boolean()
 
 
 class StreamRendition(ObjectType):
@@ -26,9 +28,17 @@ class StreamRendition(ObjectType):
 class StreamNode(DjangoObjectType):
     renditions = Field(List(StreamRendition), current=Boolean())
 
+    @staticmethod
+    def _get_store_dates(store, current):
+        start, end = (None, None)
+        if store['name'] == current.get('dvrStoreName'):
+            start = datetime.fromtimestamp(current.get('utcStart', 0) / 1000)
+            end = datetime.fromtimestamp(current.get('utcEnd', 0) / 1000)
+        return { 'start': start, 'end': end }
+
     def resolve_renditions(self, info):
         print('all provider data', self.provider_data)
-        stores = self.provider_data.get('stores')
+        stores, current = itemgetter('stores', 'current_store_details')(self.provider_data)
         if stores:
             print('tiene;', stores)
             return [
@@ -37,8 +47,9 @@ class StreamNode(DjangoObjectType):
                     stores=[
                         StreamStore(
                             name=store['name'],
-                            start=datetime.fromtimestamp(store.get('utcStart', 0) / 1000),
-                            end=datetime.fromtimestamp(store.get('utcEnd', 0) / 1000)
+                            start=StreamNode._get_store_dates(store, current)['start'],
+                            end=StreamNode._get_store_dates(store, current)['end'],
+                            current=store['name'] == current.get('dvrStoreName')
                         )
                         for store in stores
                     ])
