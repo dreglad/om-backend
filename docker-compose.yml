@@ -55,8 +55,8 @@ services:
     image: danieldent/nginx-ssl-proxy
     environment:
       UPSTREAM: media:8081
-      SERVERNAME: dvr-backend.omedia.io
-      # EXTRANAMES: dvr-backend.omedia.io
+      SERVERNAME:
+      EXTRANAMES:
     ports:
       - "80:80"
       - "443:443"
