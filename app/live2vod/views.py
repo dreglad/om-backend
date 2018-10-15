@@ -22,7 +22,7 @@ def check_streams(request):
             assert dvr_time > threshold_time, '{} is greater than {}'.format(dvr_time, threshold_time)
             # Download and test a sample video
             assert _test_live(stream), 'Did not get live video sample with expected length'
-        except Exception as err:
+        except AssertionError, KeyError as err:
             print('Streaming not OK: %s' % err)
             reset_url = urljoin(stream.metadata['wseApiUrl'], (
                 '/v2/servers/_defaultServer_/vhosts/_defaultVHost_'
