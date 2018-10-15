@@ -28,7 +28,7 @@ services:
   web:
     build:
       context: ./app
-    command: bash -c "python3 manage.py migrate ; python3 manage.py collectstatic --noinput ; /usr/local/bin/gunicorn live2vod.wsgi:application -w 2 --reload -b :8000"
+    command: bash -c "python3 manage.py migrate ; python3 manage.py collectstatic --noinput ; /usr/local/bin/gunicorn live2vod.wsgi:application -t 60 -w 2 --reload -b :8000"
     volumes:
       - ./app:/app
       - media:/srv/media

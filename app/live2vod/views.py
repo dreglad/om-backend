@@ -20,8 +20,10 @@ def check_streams(request):
             end = stream.get_provider().get_data()['current_store_details']['end']
             dvr_time, threshold_time = (pytz.utc.localize(end), timezone.now() - timedelta(minutes=3))
             assert dvr_time > threshold_time, '{} is greater than {}'.format(dvr_time, threshold_time)
+            print('passed store API duration test', stream)
             # Download and test a sample video
             assert _test_live(stream), 'Did not get live video sample with expected length'
+            print('passed live test', stream)
         except (AssertionError, KeyError) as err:
             print('Streaming not OK: %s' % err)
             reset_url = urljoin(stream.metadata['wseApiUrl'], (
