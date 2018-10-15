@@ -38,7 +38,7 @@ urlpatterns = [
     path('webhooks/check_streams/', check_streams),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-docs/', get_swagger_view(title='DVR REST API Documentation')),
-    path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True), schema=schema)),
+    path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
 ]
 
 if settings.DEBUG:
