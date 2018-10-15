@@ -185,7 +185,7 @@ class StoreDetailsCacheJob(CacheJob):
             r = requests.get(store['url'], headers={'Accept': 'application/json'})
             r.raise_for_status()
             logger.debug('Data retrieved: {}'.format(r.text))
-        except:
+        except Exception as e:
             logger.error("Error while retrieving store details from provider: {}".format(e))
             return
         return r.text
