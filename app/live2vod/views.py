@@ -17,9 +17,9 @@ def check_streams(request):
     for stream in Stream.objects.all():
         try:
             # Test stream metadata for a recent recording time
-            end = datetime.fromtimestamp(stream.get_provider().get_data()['current_store_details']['utcEnd']/1000.0)
+            end = stream.get_provider().get_data()['current_store_details']['end']
             dvr_time, threshold_time = (pytz.utc.localize(end), timezone.now() - timedelta(minutes=3))
-            assert dvr_time > threshold_time, '{} is greater than {}'.format()
+            assert dvr_time > threshold_time, '{} is greater than {}'.format(dvr_time, threshold_time)
             # Download and test a sample video
             assert _test_live(stream), 'Did not get live video sample with expected length'
         except Exception as err:
