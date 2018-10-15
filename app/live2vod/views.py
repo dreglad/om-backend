@@ -36,7 +36,7 @@ def check_streams(request):
             errors.append(stream.metadata['wseStream'])
             errors.append(err)
             continue  # Only restart once
-    status = 500 if len(errors) else 200
+    status = 201 if len(errors) else 200
     return HttpResponse(', '.join(errors), status=status)
 
 
