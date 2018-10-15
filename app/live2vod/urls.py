@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from graphene_django.views import GraphQLView
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
@@ -37,7 +38,7 @@ urlpatterns = [
     path('webhooks/check_streams/', check_streams),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-docs/', get_swagger_view(title='DVR REST API Documentation')),
-    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
+    path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True), schema=schema)),
 ]
 
 if settings.DEBUG:
