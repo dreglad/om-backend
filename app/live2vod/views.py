@@ -22,8 +22,8 @@ def check_streams(request):
             assert dvr_time > threshold_time, '{} is greater than {}'.format()
             # Download and test a sample video
             assert _test_live(stream), 'Did not get live video sample with expected length'
-        except Exception as e:
-            print('Streaming not OK: %s' % e)
+        except Exception as err:
+            print('Streaming not OK: %s' % err)
             reset_url = urljoin(stream.metadata['wseApiUrl'], (
                 '/v2/servers/_defaultServer_/vhosts/_defaultVHost_'
                 '/applications/{wseApplication}'
@@ -33,9 +33,8 @@ def check_streams(request):
             print('Resetting stream: {}'.format(reset_url))
             r = requests.put(reset_url)
             print(r.text)
-            sleep(7)
             errors.append(stream.metadata['wseStream'])
-            errors.append(e)
+            errors.append(err)
             continue  # Only restart once
     status = 500 if len(errors) else 200
     return HttpResponse(', '.join(errors), status=status)

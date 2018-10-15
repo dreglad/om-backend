@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import partial
 from itertools import groupby
 import json
@@ -22,7 +22,6 @@ logger = logging.getLogger('default')
 class StreamProvider(object):
 
     def __init__(self, obj, metadata, *args, **kwargs):
-        #logger.debug('StreamProvider __init__ for obj: {}'.format(obj))
         self.obj = obj
         self.metadata = metadata
         self.cache = caches['stream_providers']
@@ -60,23 +59,27 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
         if current_details:
             current_details = json.loads(current_details)
             current_details = {
-                prop: current_details['DvrConverterStore'][prop]
-                for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
-            }            
+                key: current_details['DvrConverterStore'][key]
+                for key in ('dvrStoreName', 'utcStart', 'utcEnd')
+            }
+            current_details['start'] = datetime.fromtimestamp(current_details.get('utcStart', 0) / 1000)
+            current_details['end'] = datetime.fromtimestamp(current_details.get('utcEnd', 0) / 1000)
 
         details = [current_details]
         for store in stores[1:]:
             try:
                 store_details = StoreDetailsCacheJob().get(store, is_current=False)
-                print('son', store_details)
                 if store_details:
                     store_details = json.loads(store_details)['DvrConverterStore']
+                    print('aaaaaaaa', store_details)
                     if store_details['utcStart'] and store_details['utcEnd']:
                         logger.info('Appending details data: {}'.format(store_details))
-                        details.append({
-                            prop: store_details[prop]
-                            for prop in ('dvrStoreName', 'utcStart', 'utcEnd')
-                    })
+                        detail = {prop: store_details[prop]
+                                  for prop in ('dvrStoreName', 'utcStart', 'utcEnd')}
+                        detail.update({
+                            'start': datetime.fromtimestamp(current_details.get('utcStart', 0) / 1000),
+                            'end': datetime.fromtimestamp(current_details.get('utcEnd', 0) / 1000)})
+                        details.append(detail)
             except:
                 logger.error('Error while parsing store details')
             if len(details) > 10:

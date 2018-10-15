@@ -1,16 +1,22 @@
 from datetime import datetime
 from operator import itemgetter
+from urllib.parse import urljoin
 
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.rest_framework.mutation import SerializerMutation
 from graphene.relay import Node
-from graphene import ObjectType, Schema, String, DateTime, List, Field, Boolean
-# from graphene.types.datetime import DateTime
+from graphene import (
+    ObjectType, Schema, String, DateTime, List, Int, Float, Field, Boolean
+)
 from rest_framework import serializers
 
 from dvr.models import Video, Stream
 from django.contrib.auth.models import User
+
+
+class StreamRendition(ObjectType):
+    name = String()
 
 
 class StreamStore(ObjectType):
@@ -18,42 +24,43 @@ class StreamStore(ObjectType):
     start = DateTime()
     end = DateTime()
     current = Boolean()
+    renditions = List(StreamRendition)
+    playlist = String(start=DateTime(), duration=Float())
+    thumbnail = String(date=DateTime(), max_width=Int())
 
+    def resolve_playlist(self, info, start=None, duration=60):
+        wseStreamingUrl, wseApplication = itemgetter(
+            'wseStreamingUrl', 'wseApplication')(self.metadata)
+        store, start, end = (0, 0, 0)
+        return urljoin(wseStreamingUrl, (
+            '{appplication}/{store}/playlist.m3u8?DVR&wowzadvrplayliststart={start}&wowzadvrplaylistduration={end}'.format(
+                appplication=wseApplication,
+                store=store,
+                start=start,
+                end=end)
+            ))
 
-class StreamRendition(ObjectType):
-    name = String()
-    stores = List(StreamStore)
+    def resolve_thumbnail(self, date, max_width):
+        return ''
 
 
 class StreamNode(DjangoObjectType):
-    renditions = Field(List(StreamRendition), current=Boolean())
+    streaming_url = String(resolver=lambda stream, info: stream.metadata.get('wseStreamingUrl'))
+    stores = Field(List(StreamStore), current=Boolean())
 
-    @staticmethod
-    def _get_store_dates(store, current):
-        start, end = (None, None)
-        if store['name'] == current.get('dvrStoreName'):
-            start = datetime.fromtimestamp(current.get('utcStart', 0) / 1000)
-            end = datetime.fromtimestamp(current.get('utcEnd', 0) / 1000)
-        return { 'start': start, 'end': end }
-
-    def resolve_renditions(self, info):
+    def resolve_stores(self, info):
         print('all provider data', self.provider_data)
         stores, current = itemgetter('stores', 'current_store_details')(self.provider_data)
-        if stores:
-            print('tiene;', stores)
-            return [
-                StreamRendition(
-                    name=name,
-                    stores=[
-                        StreamStore(
-                            name=store['name'],
-                            start=StreamNode._get_store_dates(store, current)['start'],
-                            end=StreamNode._get_store_dates(store, current)['end'],
-                            current=store['name'] == current.get('dvrStoreName')
-                        )
-                        for store in stores
+        return stores and [
+            StreamStore(
+                name=name,
+                start=current.get('start'),
+                end=current.get('end'),
+                renditions=[
+                    StreamRendition(name=store['name'])
+                    for store in stores
                     ])
-                for name, stores in stores.items()
+            for name, stores in stores.items()
             ]
 
     class Meta:
