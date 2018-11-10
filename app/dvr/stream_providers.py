@@ -155,7 +155,7 @@ class WowzaStreamingEngineStreamProvider(StreamProvider):
 
 
     def retrieve_stores(self):
-        logger.info('Retrieving stores from provider for obj: {}'.format(self.obj))
+        logger.info('Retrieving stores from provider for obj: {}'.format(self.obj.id))
         stores = {}
         try:
             r = requests.get(join(self.wowza_api_url, 'dvrstores'),
