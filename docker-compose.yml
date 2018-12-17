@@ -27,7 +27,7 @@ services:
   # Django web server
   django:
     build:
-      context: ./app
+      context: ./django
     command: bash -c "python3 manage.py migrate ; python3 manage.py collectstatic --noinput ; /usr/local/bin/gunicorn live2vod.wsgi:application -t 60 -w 2 --reload -b :8000"
     volumes:
       - media:/srv/media
@@ -53,10 +53,9 @@ services:
   # Celery worker
   worker:
     build:
-      context: ./app
+      context: ./django
     command: ./run_celery.sh
     volumes:
-      - ./app:/app
       - media:/srv/media
     depends_on:
       - db
@@ -65,10 +64,9 @@ services:
 
   # conversion_worker:
   #   build:
-  #     context: ./app
+  #     context: ./django
   #   command: ./run_conversion_worker.sh
   #   volumes:
-  #     - ./app:/app
   #     - media:/srv/media
   #   depends_on:
   #     - db
@@ -78,10 +76,9 @@ services:
   # Celery beat scheduler
   beat:
     build:
-      context: ./app
+      context: ./django
     command: ./run_beat.sh
     volumes:
-      - ./app:/app
       - media:/srv/media
     depends_on:
       - db
