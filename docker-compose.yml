@@ -25,7 +25,7 @@ services:
       - "15672:15672"  # here, we can access rabbitmq management plugin
 
   # Django web server
-  web:
+  django:
     build:
       context: ./app
     command: bash -c "python3 manage.py migrate ; python3 manage.py collectstatic --noinput ; /usr/local/bin/gunicorn live2vod.wsgi:application -t 60 -w 2 --reload -b :8000"
@@ -49,7 +49,7 @@ services:
     ports:
       - "4010:4010"
     links:
-      - web
+      - django
 
   # Celery worker
   worker:

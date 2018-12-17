@@ -22,6 +22,17 @@ def process_video(video_pk):
     video = Video.objects.get(pk=video_pk)
     video.set_status('STARTED', progress=0, result={'downloaded': '0'})
 
+    # determine if conversion or download.
+
+    conv = Conversion.objects.create(
+        start=start, duration=duration, stream=stream, status='STARTED'
+        )
+
+    try:
+        convert(conv.pk)
+    except Exception as e:
+        pass
+
     # start and wait for download job(s)
     jobs = []
     for index, url in enumerate(video.sources, start=1):
