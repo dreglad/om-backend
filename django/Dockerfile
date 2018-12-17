@@ -15,7 +15,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /src
 COPY . /src/
 
-WORKDIR /app
+WORKDIR /src
 RUN pip3 install --upgrade -r requirements.txt
 
 
