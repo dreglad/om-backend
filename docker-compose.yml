@@ -40,9 +40,9 @@ services:
       - cache
       - rabbitmq
 
-  media:
+  kaltura:
     build:
-      context: ./nginx
+      context: ./kaltura
     volumes:
       - media:/srv/media
       - static:/srv/static
