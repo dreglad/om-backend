@@ -1,4 +1,5 @@
 FROM jrottenberg/ffmpeg:4.0-ubuntu
+LABEL maintainer="David Regla <dreglad@gmail.com"
 
 RUN \
   apt-get -y install wget && \
@@ -9,8 +10,8 @@ RUN \
   apt-get -y install kaltura-nginx
 
 WORKDIR /opt/kaltura/nginx
-ADD nginx.conf ./conf
-ADD vod.conf ./conf
+COPY nginx.conf ./conf
+COPY vod.conf ./conf
 
 RUN \
   ln -sf /dev/stdout /opt/kaltura/nginx/logs/access.log && \
@@ -20,8 +21,6 @@ STOPSIGNAL SIGTERM
 
 EXPOSE 4010
 
-# # reset image's default entrypoint (ffmpeg)
 ENTRYPOINT []
 
-# CMD ["nginx", "-g", "daemon off;"]
 CMD ["/opt/kaltura/nginx/sbin/nginx", "-g", "daemon off;"]
