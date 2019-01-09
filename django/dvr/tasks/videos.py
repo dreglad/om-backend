@@ -5,6 +5,7 @@ from posixpath import join
 from subprocess import Popen, PIPE, call, check_output
 
 from django.utils import timezone
+from django.conf import settings
 from celery import shared_task, group
 from celery.result import allow_join_result
 import pexpect
