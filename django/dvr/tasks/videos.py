@@ -34,20 +34,13 @@ def process_video(video_pk):
         pass
 
     # start and wait for download job(s)
-    jobs = []
-    for index, url in enumerate(video.sources, start=1):
-        jobs.append(download_video_youtubedl.s(url, video.get_source_filename(index, absolute=True), video_pk))
+    group(
+        download_video_youtubedl.s(url, video.get_source_filename(index, absolute=True), video_pk)
+        for index, url in enumerate(video.sources, start=1)
+    ).apply()
 
-    with allow_join_result():
-        group(jobs).apply_async().join()
-
-    parts = [video.get_source_filename(index, absolute=True)
-             for index in range(1, len(video.sources) + 1)]
-
-    video.set_status('STARTED', progress=0.98)
-
-    print('Parts are: ', parts)
-    for part in parts:
+    for index in range(1, len(video.sources) + 1):
+        part = video.get_source_filename(index, absolute=True)
         pexpect.spawn(
             'ffmpeg -y -i {0} -c copy -bsf:v h264_mp4toannexb -f mpegts {0}.ts'.format(part)
             ).expect(pexpect.EOF, timeout=None)
@@ -82,16 +75,16 @@ def download_video_youtubedl(url, filename, video_pk=None):
         if video_pk:
             if d['status'] == 'downloading':
                 progress = d.get('fragment_index', 0)/float(d.get('fragment_count', 0))
-                video.set_status('STARTED', progress=progress - 0.03)
+                video.set_status('STARTED', progress=progress)
             elif d['status'] == 'finished':
-                video.set_status('STARTED', progress=0.99)
+                video.set_status('STARTED', progress=1.0)
             elif d['status'] == 'error':
                 video.set_status('ERROR', result=d)
 
     ydl_opts = {
         'format': 'bestaudio/best',
         'logger': logger,
-        # 'hls_use_mpegts': True,
+        'hls_use_mpegts': settings.HLS_USE_MPEGTS,
         'hls_prefer_native': True,
         'outtmpl': filename,
         'progress_hooks': [youtubedl_progress],

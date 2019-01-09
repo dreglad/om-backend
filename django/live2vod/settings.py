@@ -14,20 +14,19 @@ import os
 
 from celery.schedules import crontab, schedule
 
+DEBUG = os.environ.get('DEBUG', False)
+
+# App settings
+HLS_USE_MPEGTS = bool(os.environ.get('HLS_USE_MPEGTS'))
+MEDIA_DISPOSE_THRESHOLD = float(os.environ.get('MEDIA_DISPOSE_THRESHOLD', 0))
+
+ALLOWED_HOSTS = ['*']
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '=b)=e41e+e^@=@72e3nm(e50%q#&eb775_+sl%mvb#gsb+m+9('
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
-ALLOWED_HOSTS = [os.environ.get('HOST', 'localhost'), '127.0.0.1', 'django']
 
 # Application definition
 
@@ -109,8 +108,17 @@ CELERY_BEAT_SCHEDULE = {
     'dispatch-videos': {
         'task': 'dvr.tasks.dispatch_videos',
         'schedule': schedule(run_every=5.0)
-    },
+    }
 }
+
+if MEDIA_DISPOSE_THRESHOLD:
+    CELERY_BEAT_SCHEDULE.update({
+        'dispatch-videos': {
+            'task': 'dvr.tasks.dispatch_media_dispose',
+            'schedule': schedule(run_every=300.0)
+        }
+    })
+
 CELERY_IMPORTS = ('dvr.tasks',)
 
 
@@ -153,8 +161,6 @@ CACHES = {
         'LOCATION': 'cache:11211',
     },
     'stream_providers': {
-        # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        # 'LOCATION': 'stream_providers_cache',
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': 'cache:11211',
         'KEY_PREFIX': 'sp'

@@ -196,6 +196,7 @@ class Video(EphemeralMixin, WorkableMixin, ConfigurableMixin, MetadatableMixin, 
         ordering = ['-created_at']
         verbose_name = _('video')
         verbose_name_plural = _('videos')
+        get_latest_by = "created_at"
 
 
 class DistributionChannel(EphemeralMixin, NameableMixin, MetadatableMixin, ConfigurableMixin, models.Model):

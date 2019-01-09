@@ -1,19 +1,21 @@
 import logging
 from time import sleep
+import shutil
 
 from celery import shared_task
 from django.conf import settings
 
 from dvr.models import SceneAnalysis, Video
 
-# from .conversions import *
+from .conversions import convert
 from .scenes import search_changes
-from .videos import *
+from .videos import process_video
 
 logger = logging.getLogger()
 
 
 """Periodic tasks (dispatchers)"""
+
 
 @shared_task
 def dispatch_scene_analysis():
@@ -24,7 +26,7 @@ def dispatch_scene_analysis():
     logging.debug('Executing dispatch_scene_analysis task')
     for scene_analysis in SceneAnalysis.objects.filter(status="PENDING"):
         scene_analysis.set_status('QUEUED')
-        search_changes.delay(scene_analysis.pk)
+        search_changes.apply_async([scene_analysis.pk])
 
 
 @shared_task
@@ -39,10 +41,19 @@ def dispatch_videos():
 @shared_task
 def dispatch_conversions():
     """?Wowza's native conversion mechanism"""
-    if settings.DEBUG:
-        logging.info('Skipping task in DEBUG mode')
-        return
     for conversion in Conversion.objects.filter(status='PENDING').order_by('id'):
         conversion.set_status('QUEUED')
         convert.apply_async([conversion.pk], queue='conversions')
         sleep(0.5)
+
+
+@shared_task
+def dispatch_media_dispose():
+    if MEDIA_DISPOSE_THRESHOLD > 0:
+        total, used, *_ = shutil.disk_usage(settings.MEDIA_ROOT)
+        logging.debug('%s filesystem is at %s out of %i', settings.MEDIA_ROOT, used, total)
+        if used / total > settings.MEDIA_DISPOSE_THRESHOLD:
+            earliest = Video.objects.earliest()
+            if earliest:
+                logging.info('Disposing %s', earliest)
+                os.remove(os.path.join(settings.MEDIA_ROOT, earliest.get_source_filename()))
