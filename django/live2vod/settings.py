@@ -210,33 +210,39 @@ MEDIA_URL = '/'
 MEDIA_ROOT = '/srv/media'
 
 
-LOGGING = {
+if os.environ.get('SENTRY_DSN'):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    sentry_sdk.init(
+        dsn=os.environ.get('SENTRY_DSN'),
+        integrations=[DjangoIntegration()]
+    )
+
+import logging.config
+LOGGING_CONFIG = None
+logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'django.log'),
-        },
+    'formatters': {
         'console': {
-            'level': 'DEBUG',
+            # exact format is not important, this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'console',
         },
     },
     'loggers': {
-        'default': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'cacheback': {
+    # root logger
+        '': {
+            'level': 'WARNING',
             'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
         },
     },
-}
+})
 
 try:
     from .local_settings import *

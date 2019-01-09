@@ -37,6 +37,7 @@ class ConversionForm(forms.ModelForm):
             'start': MicroDateTimeInput(format='%Y-%m-%d %H:%M:%S.%f')
         }
 
+
 @admin.register(Conversion)
 class ConversionAdmin(BaseAdmin):
     list_display = ('pk', 'status', 'dvr_store', 'stream', 'start', 'duration')
