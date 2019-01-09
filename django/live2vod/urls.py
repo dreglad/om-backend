@@ -30,12 +30,11 @@ router.register(r'scene_analysis', SceneAnalysisViewSet)
 router.register(r'videos', VideoViewSet)
 router.register(r'series', SeriesViewSet)
 router.register(r'series_recurrences', SeriesRecurrenceViewSet)
-# router.register(r'videos', VideoViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('webhooks/check_streams/', check_streams),
+    # path('webhooks/check_streams/', check_streams),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-docs/', get_swagger_view(title='DVR REST API Documentation')),
     path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
