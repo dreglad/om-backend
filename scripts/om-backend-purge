@@ -1,0 +1,22 @@
+#!/bin/bash
+
+## Temporary script to purge om-backend data created more than 24hs ago.
+## Install inside of /etc/cron.hourly running
+## sudo install om-backend-purge /etc/cron.hourly/
+
+_DIR="/var/lib/docker/volumes/om-backend_media/_data/videos"
+
+readonly SCRIPT_NAME=$(basename $0)
+
+function log() {
+  echo "$(date -R) $@"
+  logger -p user.notice -t $SCRIPT_NAME "$@"
+}
+
+log "purge begin"
+log "data dir size: $(du -sh $_DIR)"
+
+find $_DIR -type d -mtime +0 -exec rm -rfv {} ";"
+
+log "data dir size: $(du -sh $_DIR)"
+log "purge end"
